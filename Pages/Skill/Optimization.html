@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CPU、GPU、VRAM、読み込みを、勘ではなく自作の計測ツールの数字をもとに改善します。">
+    <title>OPTIMIZATION | Portfolio</title>
+
+    <!-- ========================================
+         STYLESHEET
+    ======================================== -->
+    <link rel="stylesheet" href="../../CSS/Common.css">
+    <link rel="stylesheet" href="../../CSS/Skill.css">
+
+    <!-- ========================================
+         SCRIPT
+    ======================================== -->
+    <script src="../../Script/Common.js" defer></script>
+</head>
+
+<body>
+
+    <!-- ========================================
+         HEADER
+         PC用の固定ナビゲーション
+    ======================================== -->
+    <header class="site-header">
+        <a class="site-logo" href="../../index.html#top">PORTFOLIO<span>.</span></a>
+
+        <nav class="header-nav" aria-label="メインメニュー">
+            <a href="../../index.html#profile">PROFILE</a>
+            <a href="../../index.html#projects">PROJECTS</a>
+            <a href="../../index.html#technical">TECHNICAL</a>
+            <a href="../../index.html#contact">CONTACT</a>
+        </nav>
+    </header>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ======================================== -->
+    <main id="top">
+
+        <section class="detail-hero">
+            <a class="detail-back" href="../../index.html#technical">
+                <span>←</span> TECHNICALへ戻る
+            </a>
+
+            <p class="detail-hero__label">PERFORMANCE</p>
+            <h1>OPTIMIZATION</h1>
+            <p class="detail-hero__text">CPU、GPU、VRAM、読み込みを、勘ではなく自作の計測ツールの数字をもとに改善します。</p>
+        </section>
+
+
+        <!-- ========================================
+             OVERVIEW : 概要
+        ======================================== -->
+        <section class="section detail-section" id="overview">
+            <div class="section-heading">
+                <p class="section-heading__number">01</p>
+
+                <div>
+                    <h2>OVERVIEW</h2>
+                    <p>概要</p>
+                </div>
+            </div>
+
+            <div class="prose">
+                <p>VECTOR REIGN で行った、CPU、GPU、VRAM、読み込みの改善です。計測ツールを自作し、実際に遊んだときの記録から問題を探せるようにしました。</p>
+            </div>
+        </section>
+
+
+        <!-- ========================================
+             ARCHITECTURE : 計測の仕組み
+        ======================================== -->
+        <section class="section detail-section" id="architecture">
+            <div class="section-heading">
+                <p class="section-heading__number">02</p>
+
+                <div>
+                    <h2>ARCHITECTURE</h2>
+                    <p>計測の仕組み</p>
+                </div>
+            </div>
+
+            <div class="detail-split">
+                <div>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Skill/Optimization.svg" alt="計測から修正までの流れと、CPU と VRAM の改善結果" loading="lazy"></div>
+                <figcaption>計測、原因の特定、修正、再計測の流れで直します。</figcaption>
+            </figure>
+                </div>
+                <div>
+            <ul class="content-list">
+                <li><strong>プロファイラー</strong> : エディターで、全体、スコープ、GPU、ECS、スレッド、パーティクル、VRAM を確認できます。</li>
+                <li><strong>HitchMonitor</strong> : 60FPS を割ったフレームの中身(処理時間、PSO 生成、同期読み込みなど)をファイルへ書き出します。</li>
+                <li><strong>VRAM の集計</strong> : リソースに用途の札を付け、消えたときに自動で引きます。</li>
+            </ul>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================
+             IMPLEMENTATION : 実装
+        ======================================== -->
+        <section class="section detail-section" id="implementation">
+            <div class="section-heading">
+                <p class="section-heading__number">03</p>
+
+                <div>
+                    <h2>IMPLEMENTATION</h2>
+                    <p>実装</p>
+                </div>
+            </div>
+
+            <h3 class="content-heading">CPU : 爆風のたびにカクつく</h3>
+            <ul class="content-list">
+                <li><strong>原因</strong> : 判定で機体の判定メッシュの三角形を全件集めていて、機体のそばの爆発が1回 27 ms かかっていました。</li>
+                <li><strong>修正</strong> : 広域判定でボディを集めてから、ボディごとに最初の当たりで打ち切る形にしました。</li>
+            </ul>
+
+            <h3 class="content-heading">CPU : 敵の初出現で止まる</h3>
+            <ul class="content-list">
+                <li><strong>原因</strong> : エフェクトのパーティクル用 GPU プールを初出現のときに作っていて、26〜30 ms 止まっていました。</li>
+                <li><strong>修正</strong> : 先読みで届いた時点で、ロード中にプールを作るようにしました。</li>
+            </ul>
+
+            <h3 class="content-heading">CPU : 大量の問い合わせを減らす</h3>
+            <ul class="content-list">
+                <li>判定対象がない問い合わせは Jolt Physics へ行かずに返し、ボイドの大量の問い合わせを省いています。</li>
+                <li>ECS のクエリはアーキタイプごとにキャッシュし、新しいアーキタイプだけを照合します。</li>
+                <li>最大 4,000 体のボイドは小隊に分け、近傍探索の範囲を絞っています。</li>
+            </ul>
+
+            <h3 class="content-heading">GPU : 描かないものと、計算しないものを決める</h3>
+            <ul class="content-list">
+                <li>増幅シェーダーで、メッシュレット単位の視錐台カリングと法線コーンカリングを行います。</li>
+                <li>LOD は画面に占める割合から GPU で選びます。影はカスケードごとに違う段を選べます。</li>
+                <li>GI は低解像度で計算し、時間・空間デノイズの後にアップスケールします。</li>
+                <li>可視判定だけのボリューム影は、インラインレイトレ(RayQuery)で軽く処理します。</li>
+                <li>戦闘シーンのパイプラインは GI と反射を外しています。ボイドは光の筋が点いている間だけレイトレのワールドへ登録します。</li>
+            </ul>
+
+            <h3 class="content-heading">VRAM : 使う分だけ確保する</h3>
+            <ul class="content-list">
+                <li><strong>原因</strong> : 使わない領域まで固定で確保していました。用途別の集計を作り、数字を見ながら削減しました。</li>
+                <li><strong>可変長のメガバッファ</strong> : 予約リソースで、必要な分だけ 4 MB 単位でヒープを割り当てます。空きが続いた領域は、GPU が使い終わったのをフェンスで確かめてから手放します。</li>
+                <li><strong>頂点形式の分割</strong> : 静的頂点は八面体エンコードで 32 バイト、ボーン割り当ては 16 バイトの別バッファ、アニメーション後は 20 バイトに分けました。</li>
+                <li><strong>メモリエイリアシング</strong> : 生存区間が重ならないリソースを、1つのヒープ内で共有します。</li>
+                <li><strong>BLAS 圧縮</strong> : 静的 BLAS はビルド後に圧縮サイズを読み戻し、複数フレームに分けて差し替えます。</li>
+            </ul>
+
+            <h3 class="content-heading">読み込み : ゲームを止めない</h3>
+            <ul class="content-list">
+                <li>GPU への転送はコピーキューとコンピュートキューへまとめて流し、完了をフェンスで見張ります。モデル1体で数百回の submit になるのを防ぐバッチの仕組みも持っています。</li>
+                <li>シーンはロード画面の裏で先読みと組み立てを行い、落ち着くのを待ってから切り替えます。</li>
+            </ul>
+        </section>
+
+
+        <!-- ========================================
+             HITCH LOG : カクつきの記録
+        ======================================== -->
+        <section class="section detail-section" id="hitch-log">
+            <div class="section-heading">
+                <p class="section-heading__number">04</p>
+
+                <div>
+                    <h2>HITCH LOG</h2>
+                    <p>カクつきの記録</p>
+                </div>
+            </div>
+
+            <div class="prose">
+                <p>HitchMonitor の実際の記録です。ホーム画面で 506.9 ms かかったフレームについて、何に時間を使ったかが分かります。</p>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>分類</th><th>内容</th><th>時間</th></tr></thead>
+                    <tbody>
+                        <tr><td>段</td><td>フレーム全体</td><td>506.9 ms</td></tr>
+                        <tr><td>段</td><td>RGDraw</td><td>469.45 ms</td></tr>
+                        <tr><td>出来事</td><td>[PSO] RayReflectionCS</td><td>27.21 ms</td></tr>
+                        <tr><td>出来事</td><td>[Load] BGM の wav ファイル</td><td>24.65 ms</td></tr>
+                        <tr><td>出来事</td><td>[PSO] RayVolumeShadowCS</td><td>18.60 ms</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="prose">
+                <p>処理時間が短いのに間隔だけ延びたフレームは、「処理の外(FPS 制限の待ち、ウィンドウの操作など)で止まっている」と見立てを付け、調べる対象と区別します。</p>
+            </div>
+        </section>
+
+
+        <!-- ========================================
+             RESULT : 成果・計測
+        ======================================== -->
+        <section class="section detail-section" id="result">
+            <div class="section-heading">
+                <p class="section-heading__number">05</p>
+
+                <div>
+                    <h2>RESULT</h2>
+                    <p>成果・計測</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>項目</th><th>値</th></tr></thead>
+                    <tbody>
+                        <tr><td>機体のそばの爆風判定(1回)</td><td>27 ms → 0.05 ms</td></tr>
+                        <tr><td>テストシーンの GPU 全体の使用量</td><td>3,858 MiB → 1,697 MiB</td></tr>
+                        <tr><td>敵の初出現のときの停止</td><td>26〜30 ms → </td></tr>
+                        <tr><td>戦闘中の平均フレーム時間</td><td></td></tr>
+                        <tr><td>ボス戦の最大負荷時の FPS</td><td></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="prose">
+                <p>動作確認環境 : Intel Core i7-14650HX(論理24スレッド)/ NVIDIA GeForce RTX 5060 Laptop GPU / メモリ 16 GB</p>
+            </div>
+        </section>
+
+
+        <!-- ========================================
+             CODE : 主なコード
+        ======================================== -->
+        <section class="section detail-section" id="code">
+            <div class="section-heading">
+                <p class="section-heading__number">06</p>
+
+                <div>
+                    <h2>CODE</h2>
+                    <p>主なコード</p>
+                </div>
+            </div>
+
+            <ul class="code-list">
+                <li><code>Engine/Time/HitchMonitor/</code></li>
+                <li><code>Engine/Physics/PhysicsWorld.cpp</code></li>
+                <li><code>Editor/Panel/ProfilerPanel/</code></li>
+                <li><code>Engine/Graphics/D3D12/VideoMemoryTracker/</code></li>
+                <li><code>Engine/Graphics/D3D12/GPUBuffer/MegaBuffer/</code></li>
+                <li><code>Engine/Graphics/Raytracing/BLASCompactor/</code></li>
+                <li><code>Engine/Graphics/Device/AsyncGPUManager/</code></li>
+                <li><code>Asset/Shader/Source/Geometry/MeshShader/</code></li>
+            </ul>
+        </section>
+
+    </main>
+
+
+    <!-- ========================================
+         FOOTER
+    ======================================== -->
+    <footer class="site-footer">
+        <a href="#top">BACK TO TOP ↑</a>
+        <p>© 2026 PORTFOLIO</p>
+    </footer>
+
+
+    <!-- ========================================
+         MOBILE MENU
+         スマートフォン用のナビゲーション
+    ======================================== -->
+    <button
+        class="mobile-menu-button"
+        type="button"
+        aria-label="メニューを開く"
+        aria-expanded="false"
+        aria-controls="mobile-menu">
+
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </button>
+
+    <nav
+        class="mobile-menu"
+        id="mobile-menu"
+        aria-label="スマートフォン用メニュー"
+        aria-hidden="true">
+
+        <a href="../../index.html#profile"><span>01</span> PROFILE</a>
+        <a href="../../index.html#projects"><span>02</span> PROJECTS</a>
+        <a href="../../index.html#technical"><span>03</span> TECHNICAL</a>
+        <a href="../../index.html#contact"><span>04</span> CONTACT</a>
+
+    </nav>
+
+</body>
+</html>
