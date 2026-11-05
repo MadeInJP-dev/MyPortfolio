@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="PROFILEの詳細ページです。">
+    <meta name="description" content="プロフィールと使用技術、制作の歩みを紹介します。">
     <title>PROFILE | Portfolio</title>
 
     <!-- ========================================
@@ -42,10 +42,6 @@
     ======================================== -->
     <main id="top">
 
-        <!-- ========================================
-             HERO
-             ページタイトル
-        ======================================== -->
         <section class="detail-hero">
             <a class="detail-back" href="../index.html#profile">
                 <span>←</span> トップへ戻る
@@ -53,17 +49,13 @@
 
             <p class="detail-hero__label">ABOUT ME</p>
             <h1>PROFILE</h1>
-            <p class="detail-hero__text">プロフィール詳細</p>
+            <p class="detail-hero__text">C++ と 3D ゲームプログラミングを軸に、ゲームとエンジンを作っています。</p>
         </section>
 
-
         <!-- ========================================
-             ABOUT
-             自己紹介
+             ABOUT : 自己紹介
         ======================================== -->
         <section class="section detail-section" id="about">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">01</p>
 
@@ -73,25 +65,48 @@
                 </div>
             </div>
 
-            <!-- プロフィール画像・自己紹介文 -->
             <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
-
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
+                <div>
+            <!-- 未記入: プロフィール画像 -->
+            <div class="detail-media"></div>
+                </div>
+                <div>
+            <div class="prose">
+                <p>強みは、コードの可読性と保守性を意識して書けることです。ゲームを作るときは常にほかの人が見ることを意識し、チームの仲間や先生がすぐに内容を理解できる形を心がけてきました。</p>
+                <p>この習慣で全体を見通しやすくなり、機能追加やデバッグでコードを振り返るときの作業もスムーズになりました。VECTOR REIGN ではコーディング規約を文書化し、適合状況を監査するところまで進めています。</p>
+                <p>今後は、より規模の大きいプロジェクトでも通用する設計力とチーム連携力を磨き、周囲と協力しながら質の高い開発を行っていきたいです。</p>
+            </div>
+                </div>
             </div>
 
+            <dl class="detail-meta">
+                <div>
+                    <dt>名前</dt>
+                    <dd></dd>
+                </div>
+                <div>
+                    <dt>学校・学科</dt>
+                    <dd></dd>
+                </div>
+                <div>
+                    <dt>希望職種</dt>
+                    <dd>ゲームエンジニア</dd>
+                </div>
+                <div>
+                    <dt>得意分野</dt>
+                    <dd>C++ / 3D ゲームプログラミング</dd>
+                </div>
+                <div>
+                    <dt>趣味</dt>
+                    <dd>バイク / ライトノベル読書</dd>
+                </div>
+            </dl>
         </section>
 
-
         <!-- ========================================
-             SKILLS
-             使用技術
+             SKILLS : 使用技術
         ======================================== -->
         <section class="section detail-section" id="skills">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">02</p>
 
@@ -101,46 +116,62 @@
                 </div>
             </div>
 
-            <!-- 基本情報(未定) -->
-            <dl class="detail-meta">
-                <div>
-                    <dt>言語</dt>
-                    <dd></dd>
-                </div>
-                <div>
-                    <dt>API・エンジン</dt>
-                    <dd></dd>
-                </div>
-                <div>
-                    <dt>ツール</dt>
-                    <dd></dd>
-                </div>
-            </dl>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>分野</th><th>内容</th></tr></thead>
+                    <tbody>
+                        <tr><td>言語</td><td>C++20、HLSL、Python(アセット生成)</td></tr>
+                        <tr><td>API</td><td>DirectX 12、DirectX 11</td></tr>
+                        <tr><td>設計・技術</td><td>アーキタイプ型 ECS、ジョブシステム、レンダーグラフ、メッシュシェーダー、DXR</td></tr>
+                        <tr><td>ライブラリ</td><td>Jolt Physics、DirectXTK、DirectXTex、DirectXMesh、Dear ImGui、Effekseer</td></tr>
+                        <tr><td>ツール</td><td>Visual Studio、Git、Fork、PIX、Blender</td></tr>
+                    </tbody>
+                </table>
+            </div>
 
+            <h3 class="content-heading">資格</h3>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>取得</th><th>資格・免許</th></tr></thead>
+                    <tbody>
+                        <tr><td>2023年7月</td><td>IT パスポート試験</td></tr>
+                        <tr><td>2024年2月</td><td>普通自動二輪免許</td></tr>
+                        <tr><td>2024年6月</td><td>C 言語プログラミング認定試験 2 級</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
-
         <!-- ========================================
-             HISTORY
-             経歴・学習内容
+             HISTORY : 制作の歩み
         ======================================== -->
         <section class="section detail-section" id="history">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">03</p>
 
                 <div>
                     <h2>HISTORY</h2>
-                    <p>経歴・学習内容</p>
+                    <p>制作の歩み</p>
                 </div>
             </div>
 
-            <!-- 本文(未定) -->
-            <div class="detail-text"></div>
+            <div class="prose">
+                <p>学校のフレームワークを使った制作から、自作エンジンへ進んできました。</p>
+            </div>
 
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>時期</th><th>作品</th><th>基盤</th><th>取り組んだこと</th></tr></thead>
+                    <tbody>
+                        <tr><td></td><td>ゲームジャム作品</td><td>DirectX 11 / 学校配布フレームワーク</td><td>チーム制作、短期間での完成、手触りの演出</td></tr>
+                        <tr><td>2026年1月 提出</td><td>デ・キューブ</td><td>DirectX 11 / 学校配布フレームワーク</td><td>スプライン移動、カメラ、世界観づくり</td></tr>
+                        <tr><td>2025年10月〜</td><td>Hover Cab 2050</td><td>DirectX 11 / 自作 ECS を追加</td><td>アーキタイプ型 ECS、依存解決、並列処理</td></tr>
+                        <tr><td>2026年2月 提出</td><td>DX12 フレームワーク</td><td>DirectX 12 / 自作</td><td>RenderGraph、定数バッファの管理</td></tr>
+                        <tr><td>2025年11月〜2026年11月</td><td>VECTOR REIGN</td><td>DirectX 12 / 自作エンジン</td><td>エンジン、エディター、ゲームの一貫開発</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
-
 
     </main>
 

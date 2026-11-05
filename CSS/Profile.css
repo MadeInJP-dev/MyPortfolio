@@ -3,3 +3,11 @@
    Page-specific styles for Pages/Profile.html
    Shared layout lives in CSS/Detail.css
 ======================================== */
+
+.detail-section .detail-meta {
+    margin-bottom: 0;
+}
+
+#history .prose {
+    margin-bottom: 24px;
+}
