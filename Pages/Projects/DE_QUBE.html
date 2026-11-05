@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="DE_QUBEの詳細ページです。">
-    <title>DE_QUBE | Portfolio</title>
+    <meta name="description" content="宙に浮かぶ箱庭を登る 2.5D アクション、デ・キューブの紹介です。">
+    <title>デ・キューブ | Portfolio</title>
 
     <!-- ========================================
          STYLESHEET
@@ -42,28 +42,22 @@
     ======================================== -->
     <main id="top">
 
-        <!-- ========================================
-             HERO
-             ページタイトル
-        ======================================== -->
-        <section class="detail-hero">
-            <a class="detail-back" href="../../index.html#projects">
-                <span>←</span> PROJECTSへ戻る
-            </a>
-
-            <p class="detail-hero__label">MAIN PROJECT / 2.5D</p>
-            <h1>DE_QUBE</h1>
-            <p class="detail-hero__text">2.5D箱庭探索ゲーム</p>
+        <section class="dq-hero">
+            <div class="dq-hero__inner">
+                <div>
+                    <a class="detail-back" href="../../index.html#projects"><span>←</span> PROJECTSへ戻る</a>
+                    <p class="detail-hero__label">MAIN PROJECT / 2.5D</p>
+                    <h1>デ・キューブ</h1>
+                    <p class="detail-hero__text">宙に浮かぶ箱庭を、2D アクションの操作感で登っていくゲームです。「世界を探索している感覚」を目標に、光の演出とカメラワークを作り込みました。</p>
+                </div>
+                <img src="../../Images/Projects/DE_QUBE/Overview.jpg" alt="宙に浮かぶ箱庭の全景">
+            </div>
         </section>
 
-
         <!-- ========================================
-             OVERVIEW
-             作品概要
+             OVERVIEW : 作品概要
         ======================================== -->
         <section class="section detail-section" id="overview">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">01</p>
 
@@ -73,48 +67,76 @@
                 </div>
             </div>
 
-            <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-            <div class="detail-media"></div>
-
-            <!-- 基本情報(未定) -->
             <dl class="detail-meta">
                 <div>
                     <dt>ジャンル</dt>
-                    <dd></dd>
+                    <dd>2.5D 箱庭探索アクション</dd>
                 </div>
                 <div>
-                    <dt>制作期間</dt>
-                    <dd></dd>
+                    <dt>開発人数</dt>
+                    <dd>1人</dd>
                 </div>
                 <div>
-                    <dt>制作人数</dt>
-                    <dd></dd>
+                    <dt>開発期間</dt>
+                    <dd>1か月</dd>
                 </div>
                 <div>
-                    <dt>担当</dt>
-                    <dd></dd>
+                    <dt>開発言語</dt>
+                    <dd>C++</dd>
                 </div>
                 <div>
-                    <dt>使用技術</dt>
+                    <dt>ライブラリ</dt>
+                    <dd>DirectX 11 / 学校配布フレームワーク / ImGui / Effekseer</dd>
+                </div>
+                <div>
+                    <dt>ステージ数</dt>
                     <dd></dd>
                 </div>
             </dl>
 
-            <!-- 本文(未定) -->
-            <div class="detail-text"></div>
-
+            <div class="detail-split">
+                <div>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Projects/DE_QUBE/Camp.jpg" alt="洞窟内のたき火とキャラクター" loading="lazy"></div>
+                <figcaption>洞窟の中で、火やランプの光が映えるように作りました。</figcaption>
+            </figure>
+                </div>
+                <div>
+            <h3 class="content-heading">注力した点：世界観の構築</h3>
+            <div class="prose">
+                <p>2.5D ゲームとして「ワールドを探索している感覚」をプレイヤーに与えることを目標に、雰囲気作りやキャラクターの見せ方を重視しました。</p>
+            </div>
+            <h3 class="content-heading">苦労した点：カメラワーク</h3>
+            <div class="prose">
+                <p>移動に Catmull-Rom スプラインを使っているので、その移動に合わせたツタの上り下りと、スプラインの乗り換え時のカメラワークに苦労しました。</p>
+            </div>
+                </div>
+            </div>
         </section>
 
-
         <!-- ========================================
-             FEATURES
-             ゲームの特徴
+             PLAY MOVIE : プレイ動画
         ======================================== -->
-        <section class="section detail-section" id="features">
-
-            <!-- セクション見出し -->
+        <section class="section detail-section" id="play-movie">
             <div class="section-heading">
                 <p class="section-heading__number">02</p>
+
+                <div>
+                    <h2>PLAY MOVIE</h2>
+                    <p>プレイ動画</p>
+                </div>
+            </div>
+
+            <!-- 未記入: 公開用のプレイ動画(埋め込みかリンク) -->
+            <div class="detail-media"></div>
+        </section>
+
+        <!-- ========================================
+             FEATURES : ゲームの特徴
+        ======================================== -->
+        <section class="section detail-section" id="features">
+            <div class="section-heading">
+                <p class="section-heading__number">03</p>
 
                 <div>
                     <h2>FEATURES</h2>
@@ -122,55 +144,85 @@
                 </div>
             </div>
 
-            <!-- 特徴 -->
-            <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
-
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
+            <div class="dq-cards">
+                <article>
+                    <h3>箱庭を一周しながら登る</h3>
+                    <p>2D アクションの操作感のまま、立体の建物の外周を進みます。</p>
+                </article>
+                <article>
+                    <h3>進むほど変わる見え方</h3>
+                    <p>カメラが建物に沿って回り込むので、同じ建物でも場所ごとに見え方が変わります。</p>
+                </article>
+                <article>
+                    <h3>探索の動機付け</h3>
+                    <p>ダイヤの収集、ツタの上り下り、とげ、敵、中間地点、残機を組み合わせました。</p>
+                </article>
+                <article>
+                    <h3>本をめくるステージ選択</h3>
+                    <p>ページが3Dでめくれて、ページの音も鳴ります。</p>
+                </article>
             </div>
-
         </section>
 
-
         <!-- ========================================
-             IMPLEMENTATION
-             担当した実装
+             IMPLEMENTATION : 技術面の工夫
         ======================================== -->
         <section class="section detail-section" id="implementation">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
-                <p class="section-heading__number">03</p>
+                <p class="section-heading__number">04</p>
 
                 <div>
                     <h2>IMPLEMENTATION</h2>
-                    <p>担当した実装</p>
+                    <p>技術面の工夫</p>
                 </div>
             </div>
 
-            <!-- 実装内容 -->
             <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
-
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
+                <div>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Projects/DE_QUBE/Spline.svg" alt="t による移動と弧長による移動の比較" loading="lazy"></div>
+                <figcaption>同じ曲線を進むときの比較(模式図)。弧長で進めると、制御点の間隔に関係なく一定の速さになります。</figcaption>
+            </figure>
+                </div>
+                <div>
+            <h3 class="content-heading">スプラインに沿った移動</h3>
+            <ul class="content-list">
+                <li>全制御点を通る <strong>Catmull-Rom 補間</strong>を数式から実装しました。</li>
+                <li>ルックアップテーブルで距離から t を逆引きする<strong>弧長パラメータ化</strong>で、速度を一定に保ちます。</li>
+                <li>着地した瞬間に最も近いスプラインを探し、乗っている線を切り替えます。</li>
+                <li>XZ はスプラインに従い、Y は重力とレイ判定で自由に動かします。</li>
+                <li>カメラの右方向と進行方向の内積で、画面上の左右と移動方向を一致させます。</li>
+            </ul>
+                </div>
             </div>
 
+            <h3 class="content-heading">プレイヤーと同期するカメラ</h3>
+            <ul class="content-list">
+                <li>プレイヤー用とカメラ用に別々のスプラインを持ち、進行率(距離÷全長)で同期します。カメラの通り道をプレイヤーの動きと切り離して設計できます。</li>
+                <li>ツタを登っている間は、プレイヤーを一定距離で追う動きへ切り替えます。切り替え時は補間でつなぎ、カメラが飛ばないようにしました。</li>
+            </ul>
+
+            <h3 class="content-heading">拡張しやすい設計</h3>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>仕組み</th><th>内容</th></tr></thead>
+                    <tbody>
+                        <tr><td>ステートパターン</td><td>Idle、Run、Jump、Fall、Hold、Dead。状態ごとにスプライン追従か自由移動かを持つ</td></tr>
+                        <tr><td>シーンスタック</td><td>Push / Pop 方式。背景を描き続けるオーバーレイでポーズ画面を実現</td></tr>
+                        <tr><td>サブシーン</td><td>ゲーム内の開始、プレイ、リザルト、ゲームオーバーを分離</td></tr>
+                        <tr><td>ファクトリ</td><td>ラムダ登録で、JSON の名前からオブジェクトを生成</td></tr>
+                        <tr><td>データ駆動</td><td>ステージ配置、スプライン、プレイデータを JSON で管理</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
-
         <!-- ========================================
-             GALLERY
-             ギャラリー
+             GALLERY : ギャラリー
         ======================================== -->
         <section class="section detail-section" id="gallery">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
-                <p class="section-heading__number">04</p>
+                <p class="section-heading__number">05</p>
 
                 <div>
                     <h2>GALLERY</h2>
@@ -178,16 +230,41 @@
                 </div>
             </div>
 
-            <!-- ギャラリー(未定): 各枠の中に <img src="" alt=""> を配置 -->
             <div class="detail-gallery">
-                <div class="detail-media"></div>
-                <div class="detail-media"></div>
-                <div class="detail-media"></div>
-                <div class="detail-media"></div>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Projects/DE_QUBE/Title.jpg" alt="タイトル画面" loading="lazy"></div>
+            </figure>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Projects/DE_QUBE/Lamp.jpg" alt="ランプの下を走るキャラクター" loading="lazy"></div>
+            </figure>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Projects/DE_QUBE/Diamond.jpg" alt="とげの上に浮かぶダイヤ" loading="lazy"></div>
+            </figure>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Projects/DE_QUBE/Result.jpg" alt="リザルト画面" loading="lazy"></div>
+            </figure>
             </div>
-
         </section>
 
+        <!-- ========================================
+             CREDIT : 使用素材
+        ======================================== -->
+        <section class="section detail-section" id="credit">
+            <div class="section-heading">
+                <p class="section-heading__number">06</p>
+
+                <div>
+                    <h2>CREDIT</h2>
+                    <p>使用素材</p>
+                </div>
+            </div>
+
+            <ul class="content-list">
+                <li>Fab</li>
+                <li>OtoLogic</li>
+                <li>効果音ラボ</li>
+            </ul>
+        </section>
 
     </main>
 
