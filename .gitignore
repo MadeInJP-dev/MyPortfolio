@@ -1,0 +1,23 @@
+# OSが生成するファイル
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# エディタ・IDEの設定やキャッシュ
+.vs/
+.idea/
+.vscode/
+
+# ログファイル
+*.log
+
+# 環境変数・秘密情報
+.env
+.env.*
+
+# 依存パッケージ
+node_modules/
+
+# ビルド・生成物
+dist/
+build/
