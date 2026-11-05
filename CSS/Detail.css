@@ -45,6 +45,7 @@
 }
 
 .detail-hero__text {
+    max-width: 680px;
     margin: 18px 0 0;
     color: var(--color-muted);
     font-size: 0.9rem;
