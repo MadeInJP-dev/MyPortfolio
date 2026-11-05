@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="VECTOR_REIGNの詳細ページです。">
-    <title>VECTOR_REIGN | Portfolio</title>
+    <meta name="description" content="DirectX 12 の自作エンジンで動く 3D 高速メカアクション VECTOR REIGN の紹介です。">
+    <title>VECTOR REIGN | Portfolio</title>
 
     <!-- ========================================
          STYLESHEET
@@ -42,28 +42,31 @@
     ======================================== -->
     <main id="top">
 
-        <!-- ========================================
-             HERO
-             ページタイトル
-        ======================================== -->
-        <section class="detail-hero">
-            <a class="detail-back" href="../../index.html#projects">
-                <span>←</span> PROJECTSへ戻る
-            </a>
-
-            <p class="detail-hero__label">MAIN PROJECT / 3D ACTION</p>
-            <h1>VECTOR_REIGN</h1>
-            <p class="detail-hero__text">3Dメカアクションゲーム</p>
+        <section class="vr-hero">
+            <img class="vr-hero__image" src="../../Images/Projects/VECTOR_REIGN/Title.jpg" alt="VECTOR REIGN のタイトル画面">
+            <div class="vr-hero__body">
+                <a class="detail-back" href="../../index.html#projects"><span>←</span> PROJECTSへ戻る</a>
+                <p class="detail-hero__label">MAIN PROJECT / 3D ACTION</p>
+                <h1>VECTOR REIGN</h1>
+                <p class="detail-hero__text">DirectX 12 の自作エンジンで動く、3D 高速メカアクション。エンジン・エディター・ゲームを同じリポジトリで約1年開発し、タイトルからリザルトまで遊べる形に仕上げました。</p>
+            </div>
         </section>
 
+        <section class="section vr-stats-section" aria-label="規模">
+            <div class="vr-stats">
+                <div><strong>約18万行</strong><span>C++ ソース</span></div>
+                <div><strong>約1.1万行</strong><span>HLSL</span></div>
+                <div><strong>131 種</strong><span>ECS システム</span></div>
+                <div><strong>43 種</strong><span>描画パス</span></div>
+                <div><strong>最大4,000</strong><span>ボスの個体数</span></div>
+                <div><strong>約1年</strong><span>開発期間</span></div>
+            </div>
+        </section>
 
         <!-- ========================================
-             OVERVIEW
-             作品概要
+             OVERVIEW : 作品概要
         ======================================== -->
         <section class="section detail-section" id="overview">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">01</p>
 
@@ -73,104 +76,196 @@
                 </div>
             </div>
 
-            <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-            <div class="detail-media"></div>
+            <div class="prose">
+                <p>軽量戦術機 LTM-07 を操縦し、砂漠の闘技場で戦うゲームです。無人機の群れをウェーブごとに退け、地中から現れる巨大生物「ボイドワーム」の撃破を目指します。</p>
+                <p>ゲームの流れは、タイトル、格納庫、ガレージ、ミッション選択、戦闘、リザルトです。戦闘は3つのウェーブのあとにボス戦へ進みます。</p>
+            </div>
 
-            <!-- 基本情報(未定) -->
             <dl class="detail-meta">
                 <div>
                     <dt>ジャンル</dt>
-                    <dd></dd>
+                    <dd>3D 高速メカアクション</dd>
                 </div>
                 <div>
-                    <dt>制作期間</dt>
-                    <dd></dd>
+                    <dt>開発形態</dt>
+                    <dd>個人開発</dd>
                 </div>
                 <div>
-                    <dt>制作人数</dt>
-                    <dd></dd>
+                    <dt>開発期間</dt>
+                    <dd>2025年11月〜2026年11月</dd>
                 </div>
                 <div>
-                    <dt>担当</dt>
-                    <dd></dd>
+                    <dt>対応環境</dt>
+                    <dd>Windows 11 / DirectX 12 Ultimate 対応 GPU</dd>
                 </div>
                 <div>
-                    <dt>使用技術</dt>
-                    <dd></dd>
+                    <dt>開発言語</dt>
+                    <dd>C++20 / HLSL / Python</dd>
+                </div>
+                <div>
+                    <dt>開発環境</dt>
+                    <dd>Visual Studio / Git / PIX</dd>
                 </div>
             </dl>
-
-            <!-- 本文(未定) -->
-            <div class="detail-text"></div>
-
         </section>
 
-
         <!-- ========================================
-             FEATURES
-             ゲームの特徴
+             PLAY MOVIE : プレイ動画
         ======================================== -->
-        <section class="section detail-section" id="features">
-
-            <!-- セクション見出し -->
+        <section class="section detail-section" id="play-movie">
             <div class="section-heading">
                 <p class="section-heading__number">02</p>
 
                 <div>
-                    <h2>FEATURES</h2>
-                    <p>ゲームの特徴</p>
+                    <h2>PLAY MOVIE</h2>
+                    <p>プレイ動画</p>
                 </div>
             </div>
 
-            <!-- 特徴 -->
-            <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
-
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
-            </div>
-
+            <!-- 未記入: 公開用のプレイ動画(埋め込みかリンク) -->
+            <div class="detail-media"></div>
         </section>
 
-
         <!-- ========================================
-             IMPLEMENTATION
-             担当した実装
+             HIGHLIGHTS : 見どころ
         ======================================== -->
-        <section class="section detail-section" id="implementation">
-
-            <!-- セクション見出し -->
+        <section class="section detail-section" id="highlights">
             <div class="section-heading">
                 <p class="section-heading__number">03</p>
 
                 <div>
-                    <h2>IMPLEMENTATION</h2>
-                    <p>担当した実装</p>
+                    <h2>HIGHLIGHTS</h2>
+                    <p>見どころ</p>
                 </div>
             </div>
 
-            <!-- 実装内容 -->
-            <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
+            <article class="vr-block">
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Projects/VECTOR_REIGN/Stage04.jpg" alt="ボイドの群れが作るボイドワーム" loading="lazy"></div>
+                <figcaption>ボイドの群れが作るボイドワーム。手前はプレイヤーの機体です。</figcaption>
+            </figure>
+                <div>
+                    <h3 class="content-heading">4,000 体の群れでできた巨大ボス</h3>
+            <ul class="content-list">
+                <li>最終ボスは最大 4,000 体の小さな個体(ボイド)の集まりです。</li>
+                <li>小隊に分かれた個体が動いて1つの巨大な体を作り、攻撃を受けると数を減らしながら形を変えます。</li>
+                <li>群れの突進、円陣からのミサイル、地中からの出現など複数の攻撃を持ち、途中でフェーズが変わります。</li>
+                <li>撃破時は、体の隙間から全方向へ光の筋がこぼれます。</li>
+            </ul>
+                </div>
+            </article>
 
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
-            </div>
+            <article class="vr-block vr-block--flip">
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Projects/VECTOR_REIGN/Stage01.jpg" alt="戦闘画面" loading="lazy"></div>
+                <figcaption>戦闘画面。ロックオン枠と飛行機雲を引くミサイルが飛び交います。</figcaption>
+            </figure>
+                <div>
+                    <h3 class="content-heading">「速く動いて撃つ」手触り</h3>
+            <ul class="content-list">
+                <li>ブーストとチャージダッシュは同じエネルギーを使うので、配分に判断が生まれます。</li>
+                <li>左右の手と左右の肩に別々の武器を付けて撃ち分け、組み合わせはガレージで変更できます。</li>
+                <li>反動、カメラの揺れ、着弾の光、音の重ね鳴らしで発砲の手応えを作りました。</li>
+                <li>敵のミサイルは、直前のダッシュで避けられる値に調整しています。</li>
+            </ul>
+                </div>
+            </article>
 
+            <article class="vr-block">
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Projects/VECTOR_REIGN/Home.jpg" alt="格納庫のホーム画面" loading="lazy"></div>
+                <figcaption>格納庫のホーム画面。レイトレーシングの GI・反射とボリュメトリックフォグを使っています。</figcaption>
+            </figure>
+                <div>
+                    <h3 class="content-heading">シーンごとに描画を使い分ける</h3>
+            <ul class="content-list">
+                <li>速さが大切な戦闘シーンはシャドウマップを中心にしたパイプラインです。</li>
+                <li>見た目を見せる格納庫は、レイトレーシングを使うパイプラインです。</li>
+                <li>描画の流れをレンダーグラフとしてデータで持ち、ノードエディターで組み替えられます。</li>
+            </ul>
+                </div>
+            </article>
+
+            <article class="vr-block vr-block--flip">
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Projects/VECTOR_REIGN/Stage07.jpg" alt="エディター上で動かしている画面" loading="lazy"></div>
+                <figcaption>エディター上で動かしているところ。多数のミサイルの軌跡が見えます。</figcaption>
+            </figure>
+                <div>
+                    <h3 class="content-heading">自作エディターでゲームを作る</h3>
+            <ul class="content-list">
+                <li>ImGui の統合エディターで、シーン、UI、エフェクトを作りました。</li>
+                <li>シーン編集とその場でのプレイ確認、エフェクトとプレハブのエディターを備えています。</li>
+                <li>レンダーパイプラインとアニメーターはノードで編集します。</li>
+                <li>アセットを依存関係からたどって集める、提出用パッケージの書き出しも持っています。</li>
+            </ul>
+                </div>
+            </article>
         </section>
 
-
         <!-- ========================================
-             GALLERY
-             ギャラリー
+             TECHNOLOGY : 使用技術
         ======================================== -->
-        <section class="section detail-section" id="gallery">
-
-            <!-- セクション見出し -->
+        <section class="section detail-section" id="technology">
             <div class="section-heading">
                 <p class="section-heading__number">04</p>
+
+                <div>
+                    <h2>TECHNOLOGY</h2>
+                    <p>使用技術</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>分野</th><th>内容</th><th>詳細</th></tr></thead>
+                    <tbody>
+                        <tr><td>エンジン設計</td><td>Core ← Engine ← Application / Editor の4層。依存の向きを一方向に保つ</td><td><a href="../Skill/ECS.html">ECS</a></td></tr>
+                        <tr><td>並列処理</td><td>ワークスティーリングのジョブシステムでボイドの計算などを並列化</td><td><a href="../Skill/JobSystem.html">JOB SYSTEM</a></td></tr>
+                        <tr><td>描画</td><td>レンダーグラフ、メッシュシェーダー、DXR、バインドレス、GPU パーティクル</td><td><a href="../Skill/DX12_Rendering.html">DIRECTX 12</a></td></tr>
+                        <tr><td>計測と改善</td><td>自作プロファイラーで原因を特定。爆風の判定 27 ms → 0.05 ms、VRAM 3,858 MiB → 1,697 MiB</td><td><a href="../Skill/Optimization.html">OPTIMIZATION</a></td></tr>
+                        <tr><td>物理</td><td>Jolt Physics を組み込み、判定の窓口を自作</td><td></td></tr>
+                        <tr><td>コード品質</td><td>規約の文書化、依存図、監査。シングルトン 13 個 → 2 個</td><td><a href="../Skill/Coding.html">CODING</a></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ========================================
+             CONTROLS : 操作
+        ======================================== -->
+        <section class="section detail-section" id="controls">
+            <div class="section-heading">
+                <p class="section-heading__number">05</p>
+
+                <div>
+                    <h2>CONTROLS</h2>
+                    <p>操作</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>操作</th><th>キーボード・マウス</th><th>コントローラー</th></tr></thead>
+                    <tbody>
+                        <tr><td>移動</td><td>W A S D</td><td>左スティック</td></tr>
+                        <tr><td>視点</td><td>マウス / 矢印キー</td><td>右スティック</td></tr>
+                        <tr><td>ブースト</td><td>Shift</td><td>A</td></tr>
+                        <tr><td>チャージダッシュ</td><td>Space</td><td>X</td></tr>
+                        <tr><td>降下</td><td>Ctrl</td><td>B</td></tr>
+                        <tr><td>左手 / 右手の武器</td><td>左クリック / 右クリック</td><td>LT / RT</td></tr>
+                        <tr><td>左肩 / 右肩の武器</td><td>Q / E</td><td>LB / RB</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ========================================
+             GALLERY : ギャラリー
+        ======================================== -->
+        <section class="section detail-section" id="gallery">
+            <div class="section-heading">
+                <p class="section-heading__number">06</p>
 
                 <div>
                     <h2>GALLERY</h2>
@@ -178,16 +273,47 @@
                 </div>
             </div>
 
-            <!-- ギャラリー(未定): 各枠の中に <img src="" alt=""> を配置 -->
             <div class="detail-gallery">
-                <div class="detail-media"></div>
-                <div class="detail-media"></div>
-                <div class="detail-media"></div>
-                <div class="detail-media"></div>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Projects/VECTOR_REIGN/MissionSelect.jpg" alt="ミッション選択画面" loading="lazy"></div>
+            </figure>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Projects/VECTOR_REIGN/Stage02.jpg" alt="空中に渦を巻くボイドの群れ" loading="lazy"></div>
+            </figure>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Projects/VECTOR_REIGN/Stage03.jpg" alt="砂煙を上げて飛ぶ機体" loading="lazy"></div>
+            </figure>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Projects/VECTOR_REIGN/Stage06.jpg" alt="砂丘から現れるボイドの群れ" loading="lazy"></div>
+            </figure>
             </div>
-
         </section>
 
+        <!-- ========================================
+             NEXT : 今後の課題・作品情報
+        ======================================== -->
+        <section class="section detail-section" id="next">
+            <div class="section-heading">
+                <p class="section-heading__number">07</p>
+
+                <div>
+                    <h2>NEXT</h2>
+                    <p>今後の課題・作品情報</p>
+                </div>
+            </div>
+
+            <ul class="content-list">
+                <li>ボイドの近傍探索は小隊内の総当たりなので、小隊が大きくなったときのために格子分割へ置き換える余地があります。</li>
+                <li>色空間の整理と、AO・空からの環境光(IBL)の追加で画面の質を上げられます。</li>
+                <li>テクスチャの圧縮形式を見直し、VRAM をさらに減らせます。</li>
+            </ul>
+
+            <h3 class="content-heading">素材とツール</h3>
+            <ul class="content-list">
+                <li>武器の一部のモデルは Meshy で生成し、Blender で調整しました。テクスチャと効果音の一部は Python で生成しました。</li>
+                <li>開発の一部で Claude Code を使用しています。</li>
+            </ul>
+        </section>
 
     </main>
 

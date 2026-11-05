@@ -1,5 +1,194 @@
 /* ========================================
-   VECTOR_REIGN
-   Page-specific styles for Pages/Projects/VECTOR_REIGN.html
-   Shared layout lives in CSS/Detail.css
+   VECTOR REIGN
+   格納庫の HUD をもとにした、暗いタクティカルなデザイン
 ======================================== */
+
+:root {
+    --color-background: #0b1014;
+    --color-surface: #141b21;
+    --color-text: #e8eef1;
+    --color-muted: #9aa8b1;
+    --color-border: #26323a;
+    --color-accent: #6fc7da;
+    --color-accent-dark: #6fc7da;
+    --color-alert: #e8604f;
+}
+
+.site-header {
+    background: rgba(11, 16, 20, 0.92);
+}
+
+.vr-hero {
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* 画像自体にタイトルが入っているので、文字は重ねずに下へ置く */
+.vr-hero__image {
+    width: 100%;
+    max-height: 76vh;
+    object-fit: cover;
+}
+
+.vr-hero__body {
+    width: min(var(--content-width), calc(100% - 56px));
+    margin-inline: auto;
+    padding-block: 36px 48px;
+}
+
+.vr-hero .detail-back {
+    margin-bottom: 28px;
+    color: #d6dfe4;
+}
+
+.vr-hero h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 8vw, 5.4rem);
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    line-height: 1.05;
+}
+
+.vr-hero .detail-hero__text {
+    color: #c7d2d8;
+}
+
+.vr-stats-section {
+    padding-block: 0;
+}
+
+.vr-stats {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    border-inline: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.vr-stats > div {
+    display: grid;
+    gap: 4px;
+    padding: 22px 16px;
+    border-right: 1px solid var(--color-border);
+}
+
+.vr-stats > div:last-child {
+    border-right: 0;
+}
+
+.vr-stats strong {
+    color: var(--color-accent);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.vr-stats span {
+    color: var(--color-muted);
+    font-size: 0.72rem;
+}
+
+.section-heading h2 {
+    font-weight: 300;
+    letter-spacing: 0.14em;
+}
+
+.section-heading__number {
+    color: var(--color-alert);
+}
+
+.detail-media {
+    border: 1px solid var(--color-border);
+}
+
+.vr-block {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    align-items: center;
+    gap: clamp(28px, 5vw, 56px);
+    padding-block: 34px;
+    border-top: 1px solid var(--color-border);
+}
+
+.vr-block--flip > :first-child {
+    order: 1;
+}
+
+.vr-block .content-heading {
+    margin-top: 0;
+    border-left: 2px solid var(--color-alert);
+    padding-left: 12px;
+}
+
+.data-table a {
+    color: var(--color-accent);
+    white-space: nowrap;
+}
+
+.data-table a:hover {
+    text-decoration: underline;
+}
+
+.detail-gallery .content-figure {
+    min-width: 0;
+}
+
+.mobile-menu-button {
+    background: var(--color-accent);
+}
+
+.mobile-menu-button span {
+    background: #0b1014;
+}
+
+.mobile-menu {
+    background: rgba(20, 27, 33, 0.98);
+}
+
+@media (max-width: 800px) {
+    .vr-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .vr-stats > div:nth-child(3) {
+        border-right: 0;
+    }
+
+    .vr-stats > div:nth-child(-n + 3) {
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .vr-block {
+        grid-template-columns: 1fr;
+    }
+
+    .vr-block--flip > :first-child {
+        order: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .vr-hero__body {
+        width: calc(100% - 40px);
+    }
+
+    .vr-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .vr-stats > div {
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .vr-stats > div:nth-child(3) {
+        border-right: 1px solid var(--color-border);
+    }
+
+    .vr-stats > div:nth-child(even) {
+        border-right: 0;
+    }
+
+    .vr-stats > div:nth-last-child(-n + 2) {
+        border-bottom: 0;
+    }
+}
