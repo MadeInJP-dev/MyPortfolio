@@ -1,0 +1,101 @@
+/* ========================================
+   SKILL
+   Shared design for every page in Pages/Skill/
+======================================== */
+
+.detail-hero {
+    width: min(var(--content-width), calc(100% - 56px));
+    margin-inline: auto;
+    padding-block: clamp(36px, 6vw, 64px);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.detail-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: clamp(32px, 5vw, 52px);
+    color: var(--color-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    transition: color 0.2s ease;
+}
+
+.detail-back:hover {
+    color: var(--color-accent);
+}
+
+.detail-hero__label {
+    margin: 0 0 14px;
+    color: var(--color-accent);
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+}
+
+.detail-hero h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 6.5vw, 4.4rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+}
+
+.detail-section {
+    padding-block: 72px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.detail-section:last-child {
+    border-bottom: 0;
+}
+
+/* 内容が入るまでの間も、レイアウトの高さを確保する */
+.detail-text {
+    min-height: 120px;
+    color: var(--color-muted);
+    font-size: 0.88rem;
+    line-height: 2;
+}
+
+.detail-text > :first-child {
+    margin-top: 0;
+}
+
+.detail-media {
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    background: var(--color-surface);
+}
+
+.detail-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.detail-split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: clamp(28px, 5vw, 58px);
+}
+
+@media (max-width: 800px) {
+    .detail-split {
+        grid-template-columns: 1fr;
+        gap: 22px;
+    }
+}
+
+@media (max-width: 600px) {
+    .detail-hero {
+        width: calc(100% - 40px);
+    }
+
+    .detail-section {
+        padding-block: 56px;
+    }
+}
