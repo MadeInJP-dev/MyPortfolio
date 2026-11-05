@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ゲームジャム作品の詳細ページです。">
+    <meta name="description" content="30 秒で街を壊す破壊スコアアタック、ゲームジャム作品の紹介です。">
     <title>ゲームジャム作品 | Portfolio</title>
 
     <!-- ========================================
@@ -42,28 +42,18 @@
     ======================================== -->
     <main id="top">
 
-        <!-- ========================================
-             HERO
-             ページタイトル
-        ======================================== -->
-        <section class="detail-hero">
-            <a class="detail-back" href="../../index.html#projects">
-                <span>←</span> PROJECTSへ戻る
-            </a>
-
-            <p class="detail-hero__label">GAME JAM</p>
-            <h1>GAME JAM</h1>
-            <p class="detail-hero__text">ゲームジャム作品</p>
+        <section class="gj-hero">
+            <a class="detail-back" href="../../index.html#projects"><span>←</span> PROJECTSへ戻る</a>
+            <p class="detail-hero__label">GAME JAM / TEAM</p>
+            <h1><img src="../../Images/Projects/GameJam/TitleLogo.png" alt="ゲームジャム作品のタイトルロゴ"></h1>
+            <p class="gj-hero__onomatopoeia" aria-label="ガゴォォォン" role="img"><span>ガ</span><span>ゴ</span><span>ォ</span><span>ォ</span><span>ォ</span><span>ン</span></p>
+            <p class="detail-hero__text">30 秒でハンマーを振り回して街を壊し、稼いだお金でランクを競うゲームです。殴った瞬間の気持ちよさを最優先に、吹き飛ぶ建物、パーティクル、立体文字の擬音を重ねました。</p>
         </section>
 
-
         <!-- ========================================
-             OVERVIEW
-             作品概要
+             OVERVIEW : 作品概要
         ======================================== -->
         <section class="section detail-section" id="overview">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">01</p>
 
@@ -73,104 +63,124 @@
                 </div>
             </div>
 
-            <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-            <div class="detail-media"></div>
-
-            <!-- 基本情報(未定) -->
             <dl class="detail-meta">
                 <div>
+                    <dt>作品名</dt>
+                    <dd></dd>
+                </div>
+                <div>
                     <dt>ジャンル</dt>
+                    <dd>一人称視点の破壊スコアアタック</dd>
+                </div>
+                <div>
+                    <dt>開発人数</dt>
                     <dd></dd>
                 </div>
                 <div>
-                    <dt>制作期間</dt>
+                    <dt>開発期間</dt>
                     <dd></dd>
                 </div>
                 <div>
-                    <dt>制作人数</dt>
+                    <dt>ジャムのお題</dt>
                     <dd></dd>
                 </div>
                 <div>
-                    <dt>担当</dt>
+                    <dt>自分の担当</dt>
                     <dd></dd>
                 </div>
                 <div>
-                    <dt>使用技術</dt>
-                    <dd></dd>
+                    <dt>開発言語</dt>
+                    <dd>C++</dd>
+                </div>
+                <div>
+                    <dt>ライブラリ</dt>
+                    <dd>DirectX 11 / 学校配布フレームワーク / ImGui / Effekseer</dd>
                 </div>
             </dl>
-
-            <!-- 本文(未定) -->
-            <div class="detail-text"></div>
-
         </section>
 
-
         <!-- ========================================
-             FEATURES
-             ゲームの特徴
+             PLAY MOVIE : プレイ動画
         ======================================== -->
-        <section class="section detail-section" id="features">
-
-            <!-- セクション見出し -->
+        <section class="section detail-section" id="play-movie">
             <div class="section-heading">
                 <p class="section-heading__number">02</p>
 
                 <div>
-                    <h2>FEATURES</h2>
-                    <p>ゲームの特徴</p>
+                    <h2>PLAY MOVIE</h2>
+                    <p>プレイ動画</p>
                 </div>
             </div>
 
-            <!-- 特徴 -->
-            <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
-
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
-            </div>
-
+            <!-- 未記入: プレイ動画(ハンマーで建物が飛ぶ瞬間、擬音のアップ、ランク表示など) -->
+            <div class="detail-media"></div>
         </section>
 
-
         <!-- ========================================
-             IMPLEMENTATION
-             担当した実装
+             RULE : ゲームのルール
         ======================================== -->
-        <section class="section detail-section" id="implementation">
-
-            <!-- セクション見出し -->
+        <section class="section detail-section" id="rule">
             <div class="section-heading">
                 <p class="section-heading__number">03</p>
 
                 <div>
-                    <h2>IMPLEMENTATION</h2>
+                    <h2>RULE</h2>
+                    <p>ゲームのルール</p>
+                </div>
+            </div>
+
+            <ol class="gj-steps">
+                <li><strong>30秒</strong><span>制限時間は 30 秒</span></li>
+                <li><strong>破壊</strong><span>ハンマーで街の建物を殴って吹き飛ばす</span></li>
+                <li><strong>+100</strong><span>1回の破壊でお金が 100 増える</span></li>
+                <li><strong>C〜S</strong><span>終了時にスコアでランクが付く</span></li>
+            </ol>
+        </section>
+
+        <!-- ========================================
+             IMPACT : 1回の破壊で起きること
+        ======================================== -->
+        <section class="section detail-section" id="impact">
+            <div class="section-heading">
+                <p class="section-heading__number">04</p>
+
+                <div>
+                    <h2>IMPACT</h2>
+                    <p>1回の破壊で起きること</p>
+                </div>
+            </div>
+
+            <ul class="content-list">
+                <li>建物が重力付きで吹き飛ぶ</li>
+                <li>軌跡付きのパーティクルが 200 個と、虹色に光るパーティクルが 150 個飛ぶ</li>
+                <li>Blender で1文字ずつモデル化した「ガ・ゴ・ォ・ォ・ォ・ン」の立体文字が飛び出す</li>
+                <li>爆発音が鳴る</li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             MY ROLE : 担当した実装
+        ======================================== -->
+        <section class="section detail-section" id="my-role">
+            <div class="section-heading">
+                <p class="section-heading__number">05</p>
+
+                <div>
+                    <h2>MY ROLE</h2>
                     <p>担当した実装</p>
                 </div>
             </div>
 
-            <!-- 実装内容 -->
-            <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
-
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
-            </div>
-
+            <!-- 未記入: 自分が担当した実装と工夫 -->
+            <div class="detail-text"></div>
         </section>
 
-
         <!-- ========================================
-             GALLERY
-             ギャラリー
+             GALLERY : ギャラリー
         ======================================== -->
         <section class="section detail-section" id="gallery">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
-                <p class="section-heading__number">04</p>
+                <p class="section-heading__number">06</p>
 
                 <div>
                     <h2>GALLERY</h2>
@@ -178,16 +188,30 @@
                 </div>
             </div>
 
-            <!-- ギャラリー(未定): 各枠の中に <img src="" alt=""> を配置 -->
+            <!-- 未記入: ゲーム画面の画像 -->
             <div class="detail-gallery">
                 <div class="detail-media"></div>
                 <div class="detail-media"></div>
-                <div class="detail-media"></div>
-                <div class="detail-media"></div>
             </div>
-
         </section>
 
+        <!-- ========================================
+             CREDIT : 使用素材
+        ======================================== -->
+        <section class="section detail-section" id="credit">
+            <div class="section-heading">
+                <p class="section-heading__number">07</p>
+
+                <div>
+                    <h2>CREDIT</h2>
+                    <p>使用素材</p>
+                </div>
+            </div>
+
+            <ul class="content-list">
+                <li>This work is based on <a href="https://sketchfab.com/3d-models/hammer-01-c478fc79f2d2468cbe5ef3186b86d0d6">"Hammer 01"</a> by <a href="https://sketchfab.com/koss2712">koss2712</a> licensed under <a href="http://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>.</li>
+            </ul>
+        </section>
 
     </main>
 

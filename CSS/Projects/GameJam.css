@@ -1,5 +1,155 @@
 /* ========================================
    GAME JAM
-   Page-specific styles for Pages/Projects/GameJam.html
-   Shared layout lives in CSS/Detail.css
+   タイトルロゴの赤と、立体の擬音を主役にした勢いのあるデザイン
 ======================================== */
+
+:root {
+    --color-background: #150808;
+    --color-surface: #261010;
+    --color-text: #fff4ef;
+    --color-muted: #d0b3ab;
+    --color-border: #472020;
+    --color-accent: #ff4a3d;
+    --color-accent-dark: #ff7a6e;
+    --font-display: "Arial Black", "Yu Gothic", "Meiryo", sans-serif;
+}
+
+.site-header {
+    background: rgba(21, 8, 8, 0.94);
+}
+
+.gj-hero {
+    width: min(var(--content-width), calc(100% - 56px));
+    margin-inline: auto;
+    padding-block: clamp(36px, 6vw, 64px);
+    overflow: hidden;
+}
+
+.gj-hero .detail-back {
+    margin-bottom: 30px;
+}
+
+.gj-hero h1 {
+    max-width: 620px;
+    margin: 0;
+}
+
+.gj-hero__onomatopoeia {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.04em;
+    margin: 26px 0 0;
+    color: #ffd23e;
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 11vw, 7rem);
+    font-weight: 900;
+    line-height: 1.1;
+    text-shadow: 0.05em 0.05em 0 var(--color-accent);
+}
+
+.gj-hero__onomatopoeia span {
+    display: inline-block;
+    animation: gj-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+.gj-hero__onomatopoeia span:nth-child(odd) {
+    transform: rotate(-7deg);
+    --gj-rotate: -7deg;
+}
+
+.gj-hero__onomatopoeia span:nth-child(even) {
+    transform: translateY(0.1em) rotate(6deg);
+    --gj-rotate: 6deg;
+}
+
+.gj-hero__onomatopoeia span:nth-child(2) { animation-delay: 0.06s; }
+.gj-hero__onomatopoeia span:nth-child(3) { animation-delay: 0.12s; }
+.gj-hero__onomatopoeia span:nth-child(4) { animation-delay: 0.18s; }
+.gj-hero__onomatopoeia span:nth-child(5) { animation-delay: 0.24s; }
+.gj-hero__onomatopoeia span:nth-child(6) { animation-delay: 0.3s; }
+
+@keyframes gj-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.2) rotate(var(--gj-rotate));
+    }
+}
+
+.section-heading h2 {
+    color: var(--color-accent);
+    font-weight: 900;
+    letter-spacing: 0.02em;
+}
+
+.section-heading__number {
+    color: #ffd23e;
+}
+
+.detail-section {
+    border-bottom: 2px solid var(--color-border);
+}
+
+.detail-meta dt {
+    color: #ffd23e;
+}
+
+.gj-steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.gj-steps li {
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    padding: 20px 18px;
+    background: var(--color-surface);
+    border-top: 4px solid var(--color-accent);
+}
+
+.gj-steps strong {
+    color: #ffd23e;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    line-height: 1.2;
+}
+
+.gj-steps span {
+    color: var(--color-muted);
+    font-size: 0.84rem;
+}
+
+.content-list a {
+    color: #ffd23e;
+    text-decoration: underline;
+}
+
+.mobile-menu-button {
+    background: var(--color-accent);
+}
+
+.mobile-menu {
+    background: rgba(38, 16, 16, 0.98);
+}
+
+@media (max-width: 800px) {
+    .gj-steps {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .gj-hero {
+        width: calc(100% - 40px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gj-hero__onomatopoeia span {
+        animation: none;
+    }
+}
