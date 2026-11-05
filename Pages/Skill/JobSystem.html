@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="JOB SYSTEMの詳細ページです。">
+    <meta name="description" content="ワークスティーリングと依存関係つきジョブで処理を分散する、自作のジョブシステムです。">
     <title>JOB SYSTEM | Portfolio</title>
 
     <!-- ========================================
@@ -41,10 +41,6 @@
     ======================================== -->
     <main id="top">
 
-        <!-- ========================================
-             HERO
-             ページタイトル
-        ======================================== -->
         <section class="detail-hero">
             <a class="detail-back" href="../../index.html#technical">
                 <span>←</span> TECHNICALへ戻る
@@ -52,16 +48,13 @@
 
             <p class="detail-hero__label">MULTITHREADING</p>
             <h1>JOB SYSTEM</h1>
+            <p class="detail-hero__text">ワークスティーリングと依存関係つきジョブで処理を分散する、自作のジョブシステムです。</p>
         </section>
 
-
         <!-- ========================================
-             OVERVIEW
-             概要
+             OVERVIEW : 概要
         ======================================== -->
         <section class="section detail-section" id="overview">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">01</p>
 
@@ -71,19 +64,15 @@
                 </div>
             </div>
 
-            <!-- 本文(未定) -->
-            <div class="detail-text"></div>
-
+            <div class="prose">
+                <p>ECS のシステムやボイドの計算、非同期ロードを支えています。ワーカー数は論理スレッド数から 5 を引いた数(最低 1)です。</p>
+            </div>
         </section>
 
-
         <!-- ========================================
-             ARCHITECTURE
-             設計
+             ARCHITECTURE : 設計
         ======================================== -->
         <section class="section detail-section" id="architecture">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">02</p>
 
@@ -93,25 +82,27 @@
                 </div>
             </div>
 
-            <!-- 設計の説明・構成図 -->
             <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
-
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
+                <div>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Skill/JobSystem.svg" alt="ジョブシステムの構成図" loading="lazy"></div>
+                <figcaption>ワーカーごとのキューと、空いたワーカーによるワークスティーリング。</figcaption>
+            </figure>
+                </div>
+                <div>
+            <ul class="content-list">
+                <li>ワーカーごとにキューを持ち、<strong>ワークスティーリング</strong>で負荷を分散します。</li>
+                <li>先行ジョブが終わると自動で流れる<strong>依存関係つきジョブ</strong>に対応しています。</li>
+                <li>ジョブの実体はワーカーごとのプールをリングで使い回します。</li>
+            </ul>
+                </div>
             </div>
-
         </section>
 
-
         <!-- ========================================
-             IMPLEMENTATION
-             実装
+             IMPLEMENTATION : 実装
         ======================================== -->
         <section class="section detail-section" id="implementation">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">03</p>
 
@@ -121,25 +112,32 @@
                 </div>
             </div>
 
-            <!-- 実装内容 -->
-            <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
+            <h3 class="content-heading">待ち時間を無駄にしない</h3>
+            <ul class="content-list">
+                <li>待っているスレッドが、短いジョブを代わりに実行します。</li>
+                <li>ロードのような長い処理はこの対象から外し、待ち側が長く戻れなくなるのを防いでいます。</li>
+            </ul>
 
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
-            </div>
+            <h3 class="content-heading">ECS との連携</h3>
+            <ul class="content-list">
+                <li>システムの依存をジョブの依存へつなぎ、チャンクごとにジョブを発行します。</li>
+            </ul>
 
+            <h3 class="content-heading">ボイドの並列計算</h3>
+            <ul class="content-list">
+                <li>前段のシステムが位置の写しを作り、操舵の計算はその写しを読むジョブとして並列に走ります。</li>
+            </ul>
+
+            <h3 class="content-heading">計測</h3>
+            <ul class="content-list">
+                <li>スレッドごとの稼働率とスティール回数を計測できます。</li>
+            </ul>
         </section>
 
-
         <!-- ========================================
-             RESULT
-             成果・計測
+             RESULT : 成果・計測
         ======================================== -->
         <section class="section detail-section" id="result">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">04</p>
 
@@ -149,17 +147,64 @@
                 </div>
             </div>
 
-            <!-- 計測結果 -->
-            <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
-
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>項目</th><th>値</th></tr></thead>
+                    <tbody>
+                        <tr><td>並列に動かす個体数</td><td>最大 4,000 体</td></tr>
+                        <tr><td>スレッドごとの稼働率</td><td></td></tr>
+                        <tr><td>スティール回数</td><td></td></tr>
+                        <tr><td>並列化の前後の処理時間</td><td></td></tr>
+                    </tbody>
+                </table>
             </div>
-
         </section>
 
+        <!-- ========================================
+             CODE : 主なコード
+        ======================================== -->
+        <section class="section detail-section" id="code">
+            <div class="section-heading">
+                <p class="section-heading__number">05</p>
+
+                <div>
+                    <h2>CODE</h2>
+                    <p>主なコード</p>
+                </div>
+            </div>
+
+            <ul class="code-list">
+                <li><code>Engine/JobSystem/</code></li>
+                <li><code>Engine/JobSystem/Internal/JobWorker/JobWorker.cpp</code></li>
+                <li><code>Engine/JobSystem/Profile/ThreadProfiler.cpp</code></li>
+                <li><code>Application/Systems/Boid/</code></li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             REFERENCE : 参考にした資料
+        ======================================== -->
+        <section class="section detail-section" id="reference">
+            <div class="section-heading">
+                <p class="section-heading__number">06</p>
+
+                <div>
+                    <h2>REFERENCE</h2>
+                    <p>参考にした資料</p>
+                </div>
+            </div>
+
+            <h3 class="content-heading">ワークスティーリング</h3>
+            <ul class="content-list">
+                <li>Molecular Matters「Job System 2.0」(Molecular Musings)の実装を読み込み、ほぼそのままの形で移して作成しました。</li>
+            </ul>
+
+            <h3 class="content-heading">基礎</h3>
+            <ul class="content-list">
+                <li><a href="https://qiita.com/tsukino_/items/3e7fec9cc3e5a310af61" target="_blank" rel="noopener">初心者向けのジョブシステム解説(以前の作品で最初に作った原型の参考)</a></li>
+                <li><a href="https://dexall.co.jp/articles/?p=2079#i-0" target="_blank" rel="noopener">STL のスレッドの考え方と使い方</a></li>
+            </ul>
+        </section>
 
     </main>
 

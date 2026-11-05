@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ECSの詳細ページです。">
+    <meta name="description" content="データの配置からシステムの実行順の解決まで自作した、アーキタイプ型の ECS です。">
     <title>ECS | Portfolio</title>
 
     <!-- ========================================
@@ -41,10 +41,6 @@
     ======================================== -->
     <main id="top">
 
-        <!-- ========================================
-             HERO
-             ページタイトル
-        ======================================== -->
         <section class="detail-hero">
             <a class="detail-back" href="../../index.html#technical">
                 <span>←</span> TECHNICALへ戻る
@@ -52,16 +48,13 @@
 
             <p class="detail-hero__label">ENGINE ARCHITECTURE</p>
             <h1>ECS</h1>
+            <p class="detail-hero__text">データの配置からシステムの実行順の解決まで自作した、アーキタイプ型の ECS です。</p>
         </section>
 
-
         <!-- ========================================
-             OVERVIEW
-             概要
+             OVERVIEW : 概要
         ======================================== -->
         <section class="section detail-section" id="overview">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">01</p>
 
@@ -71,19 +64,15 @@
                 </div>
             </div>
 
-            <!-- 本文(未定) -->
-            <div class="detail-text"></div>
-
+            <div class="prose">
+                <p>VECTOR REIGN のエンジンで使っている ECS です。コンポーネント 110 種、システム 131 種が動き、ボスを作る最大 4,000 体のボイドもエンティティとして扱います。</p>
+            </div>
         </section>
 
-
         <!-- ========================================
-             ARCHITECTURE
-             設計
+             ARCHITECTURE : 設計
         ======================================== -->
         <section class="section detail-section" id="architecture">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">02</p>
 
@@ -93,25 +82,27 @@
                 </div>
             </div>
 
-            <!-- 設計の説明・構成図 -->
             <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
-
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
+                <div>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Skill/ECS.svg" alt="アーキタイプとチャンクの構成図" loading="lazy"></div>
+                <figcaption>コンポーネントの組み合わせごとにアーキタイプを作り、64 KB のチャンクへ配列で並べます。</figcaption>
+            </figure>
+                </div>
+                <div>
+            <ul class="content-list">
+                <li>コンポーネントの組み合わせごとに<strong>アーキタイプ</strong>を作ります。</li>
+                <li>エンティティは固定長 64 KB の<strong>チャンク</strong>へ詰めます。中身は SoA で、配列の位置はアーキタイプが持ちます。</li>
+                <li>チャンクは専用のアロケーターから借ります。</li>
+            </ul>
+                </div>
             </div>
-
         </section>
 
-
         <!-- ========================================
-             IMPLEMENTATION
-             実装
+             IMPLEMENTATION : 実装
         ======================================== -->
         <section class="section detail-section" id="implementation">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">03</p>
 
@@ -121,25 +112,32 @@
                 </div>
             </div>
 
-            <!-- 実装内容 -->
-            <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
+            <h3 class="content-heading">クエリ</h3>
+            <ul class="content-list">
+                <li>一致したアーキタイプをキャッシュし、新しいアーキタイプだけを増分で照合します。</li>
+            </ul>
 
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
-            </div>
+            <h3 class="content-heading">実行順の自動解決</h3>
+            <ul class="content-list">
+                <li>システムの読み書きの宣言から依存を作り、トポロジカルソートで実行順を決めます。</li>
+                <li><code>After</code> / <code>Before</code> で向きを明示でき、読み書きが往復する場合も扱えます。</li>
+            </ul>
 
+            <h3 class="content-heading">並列化の判定</h3>
+            <ul class="content-list">
+                <li>型が衝突していても、対象のアーキタイプが重ならなければ待ち合わせを省きます。</li>
+            </ul>
+
+            <h3 class="content-heading">可視化</h3>
+            <ul class="content-list">
+                <li>ソートの成否、循環、前後が決まっていない組をプロファイラーで確認できます。</li>
+            </ul>
         </section>
 
-
         <!-- ========================================
-             RESULT
-             成果・計測
+             RESULT : 成果・計測
         ======================================== -->
         <section class="section detail-section" id="result">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">04</p>
 
@@ -149,17 +147,79 @@
                 </div>
             </div>
 
-            <!-- 計測結果 -->
-            <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
-
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>項目</th><th>値</th></tr></thead>
+                    <tbody>
+                        <tr><td>コンポーネント</td><td>110 種</td></tr>
+                        <tr><td>システム</td><td>131 種</td></tr>
+                        <tr><td>システムの依存の循環</td><td>全フェーズで 0</td></tr>
+                        <tr><td>チャンクの大きさ</td><td>64 KB</td></tr>
+                        <tr><td>更新時間の実測</td><td></td></tr>
+                    </tbody>
+                </table>
             </div>
-
         </section>
 
+        <!-- ========================================
+             CODE : 主なコード
+        ======================================== -->
+        <section class="section detail-section" id="code">
+            <div class="section-heading">
+                <p class="section-heading__number">05</p>
+
+                <div>
+                    <h2>CODE</h2>
+                    <p>主なコード</p>
+                </div>
+            </div>
+
+            <ul class="code-list">
+                <li><code>Engine/ECS/</code></li>
+                <li><code>Engine/ECS/System/SystemManager.cpp</code></li>
+                <li><code>Engine/ECS/System/TaskAccess.h</code></li>
+                <li><code>Engine/ECS/Query/QueryCache.h</code></li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             REFERENCE : 参考にした資料
+        ======================================== -->
+        <section class="section detail-section" id="reference">
+            <div class="section-heading">
+                <p class="section-heading__number">06</p>
+
+                <div>
+                    <h2>REFERENCE</h2>
+                    <p>参考にした資料</p>
+                </div>
+            </div>
+
+            <h3 class="content-heading">全体</h3>
+            <ul class="content-list">
+                <li>Unity DOTS を目標に、Unity の ECS の解説動画や Reddit などの掲示板を参考にしました。</li>
+            </ul>
+
+            <h3 class="content-heading">仕組みと思想</h3>
+            <ul class="content-list">
+                <li><a href="https://zenn.dev/kd_gamegikenblg/articles/4ca7b1ec032329" target="_blank" rel="noopener">ECS の仕組みと思想 (1)</a></li>
+                <li><a href="https://edom18.hateblo.jp/entry/2018/12/16/193928" target="_blank" rel="noopener">ECS の仕組みと思想 (2)</a></li>
+                <li><a href="https://note.com/npaka/n/ne8dadebb93be" target="_blank" rel="noopener">ECS のシリーズ記事</a></li>
+            </ul>
+
+            <h3 class="content-heading">アーキタイプとチャンク</h3>
+            <ul class="content-list">
+                <li><a href="https://qiita.com/harayuu10/items/e15b02e3b0f3081d729b" target="_blank" rel="noopener">大まかな設計</a></li>
+                <li><a href="https://tsubakit1.hateblo.jp/entry/2018/06/06/015645" target="_blank" rel="noopener">仕様と思想</a></li>
+                <li><a href="https://logicalbeat.co.jp/blog/4032/" target="_blank" rel="noopener">C++ の仕様</a></li>
+            </ul>
+
+            <h3 class="content-heading">応用</h3>
+            <ul class="content-list">
+                <li><a href="https://zenn.dev/munimaru62o/articles/9a9e3928e2e5e0" target="_blank" rel="noopener">ボイドボスの群衆設計</a></li>
+                <li><a href="https://qiita.com/yumetodo/items/51b0b14f9d04e59faba7" target="_blank" rel="noopener">CPU 側の高速化</a></li>
+            </ul>
+        </section>
 
     </main>
 

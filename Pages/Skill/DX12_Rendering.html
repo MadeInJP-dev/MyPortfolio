@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="DIRECTX 12の詳細ページです。">
+    <meta name="description" content="レンダーグラフを土台に、現行世代の GPU 機能を実際のゲームの画面作りへ組み込みました。">
     <title>DIRECTX 12 | Portfolio</title>
 
     <!-- ========================================
@@ -41,10 +41,6 @@
     ======================================== -->
     <main id="top">
 
-        <!-- ========================================
-             HERO
-             ページタイトル
-        ======================================== -->
         <section class="detail-hero">
             <a class="detail-back" href="../../index.html#technical">
                 <span>←</span> TECHNICALへ戻る
@@ -52,16 +48,13 @@
 
             <p class="detail-hero__label">GRAPHICS</p>
             <h1>DIRECTX 12</h1>
+            <p class="detail-hero__text">レンダーグラフを土台に、現行世代の GPU 機能を実際のゲームの画面作りへ組み込みました。</p>
         </section>
 
-
         <!-- ========================================
-             OVERVIEW
-             概要
+             OVERVIEW : 概要
         ======================================== -->
         <section class="section detail-section" id="overview">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">01</p>
 
@@ -71,19 +64,15 @@
                 </div>
             </div>
 
-            <!-- 本文(未定) -->
-            <div class="detail-text"></div>
-
+            <div class="prose">
+                <p>描画の順番を C++ に固定せず、データとして持っています。パスの接続はノードエディターで編集でき、戦闘と格納庫でシーンごとに別のパイプラインを割り当てています。</p>
+            </div>
         </section>
 
-
         <!-- ========================================
-             ARCHITECTURE
-             設計
+             ARCHITECTURE : 設計
         ======================================== -->
         <section class="section detail-section" id="architecture">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">02</p>
 
@@ -93,25 +82,28 @@
                 </div>
             </div>
 
-            <!-- 設計の説明・構成図 -->
             <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
-
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
+                <div>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Skill/DX12_Rendering.svg" alt="レンダーグラフの抜粋図" loading="lazy"></div>
+                <figcaption>戦闘シーンのパイプラインの抜粋。実際の接続はもっと多く、影やフォグのパスも含みます。</figcaption>
+            </figure>
+                </div>
+                <div>
+            <ul class="content-list">
+                <li>パスの入出力からトポロジカルソートで<strong>実行順を決定</strong>します。循環があるときはコンパイルを失敗させます。</li>
+                <li>ステートが変わるところに<strong>バリアを自動で挿入</strong>します。</li>
+                <li>生存区間が重ならないリソースは<strong>1つのヒープで共有</strong>します。</li>
+                <li>前フレームの履歴を読む TAA のような構成も、循環にならない形で表現します。</li>
+            </ul>
+                </div>
             </div>
-
         </section>
 
-
         <!-- ========================================
-             IMPLEMENTATION
-             実装
+             IMPLEMENTATION : 実装
         ======================================== -->
         <section class="section detail-section" id="implementation">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">03</p>
 
@@ -121,25 +113,43 @@
                 </div>
             </div>
 
-            <!-- 実装内容 -->
-            <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
+            <h3 class="content-heading">メッシュシェーダーと GPU 駆動の LOD</h3>
+            <ul class="content-list">
+                <li>すべてのメッシュをメッシュレットに分割し、増幅シェーダーで視錐台カリングと法線コーンカリングを行います。</li>
+                <li>LOD は画面に占める割合から GPU で選ぶので、影のカスケードごとに違う段を選べます。</li>
+            </ul>
 
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
-            </div>
+            <h3 class="content-heading">レイトレーシング</h3>
+            <ul class="content-list">
+                <li>GI と影は DispatchRays、反射とボリューム影、ボス撃破の光の筋は RayQuery と、用途で使い分けます。</li>
+                <li>時間方向の蓄積と空間フィルターでデノイズします。GI は低解像度で計算してアップスケールします。</li>
+                <li>スキニング後の頂点で BLAS を更新し、静的 BLAS は複数フレームに分けて圧縮します。</li>
+            </ul>
 
+            <h3 class="content-heading">GPU メモリの管理</h3>
+            <ul class="content-list">
+                <li>リソースに札を付けて VRAM を用途別に集計し、エディターで確認できます。</li>
+                <li>予約リソースで、必要な分だけ 4 MB 単位でヒープを割り当てるメガバッファを作りました。</li>
+                <li>静的頂点を 32 バイト(八面体エンコードの法線・接線)にするなど、頂点形式を分割しました。</li>
+            </ul>
+
+            <h3 class="content-heading">GPU パーティクルと画面効果</h3>
+            <ul class="content-list">
+                <li>発生・更新・描画一覧の作成をコンピュートシェーダーで行い、<code>ExecuteIndirect</code> で描画します。</li>
+                <li>アセットをまたいで粒を集め、バイトニックソートで遠い順に並べます。</li>
+                <li>PBR のディファード、カスケードシャドウ、ボリュメトリックフォグ、TAA、ACES のトーンマップを実装しました。</li>
+            </ul>
+
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Projects/VECTOR_REIGN/Home.jpg" alt="格納庫のホーム画面" loading="lazy"></div>
+                <figcaption>格納庫のホーム画面。レイトレーシングの GI・反射とボリュメトリックフォグを使っています。</figcaption>
+            </figure>
         </section>
 
-
         <!-- ========================================
-             RESULT
-             成果・計測
+             RESULT : 成果・計測
         ======================================== -->
         <section class="section detail-section" id="result">
-
-            <!-- セクション見出し -->
             <div class="section-heading">
                 <p class="section-heading__number">04</p>
 
@@ -149,17 +159,80 @@
                 </div>
             </div>
 
-            <!-- 計測結果 -->
-            <div class="detail-split">
-                <!-- 画像(未定): <img src="" alt=""> をこの中に配置 -->
-                <div class="detail-media"></div>
-
-                <!-- 本文(未定) -->
-                <div class="detail-text"></div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>項目</th><th>値</th></tr></thead>
+                    <tbody>
+                        <tr><td>テストシーンの GPU メモリ</td><td>3,858 MiB → 1,697 MiB</td></tr>
+                        <tr><td>描画パスの種類</td><td>43 種(テスト用を含む)</td></tr>
+                        <tr><td>戦闘シーンのパイプライン</td><td>34 パス / 59 接続</td></tr>
+                        <tr><td>パスごとの GPU 時間</td><td></td></tr>
+                        <tr><td>シーンごとの FPS</td><td></td></tr>
+                    </tbody>
+                </table>
             </div>
-
         </section>
 
+        <!-- ========================================
+             CODE : 主なコード
+        ======================================== -->
+        <section class="section detail-section" id="code">
+            <div class="section-heading">
+                <p class="section-heading__number">05</p>
+
+                <div>
+                    <h2>CODE</h2>
+                    <p>主なコード</p>
+                </div>
+            </div>
+
+            <ul class="code-list">
+                <li><code>Engine/Graphics/RenderingPipeline/RenderGraph/</code></li>
+                <li><code>Engine/Graphics/Raytracing/</code></li>
+                <li><code>Asset/Shader/Source/Geometry/MeshShader/</code></li>
+                <li><code>Engine/Graphics/D3D12/VideoMemoryTracker/</code></li>
+                <li><code>Engine/Graphics/FrameCompute/ParticleSimulation/</code></li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             REFERENCE : 参考にした資料
+        ======================================== -->
+        <section class="section detail-section" id="reference">
+            <div class="section-heading">
+                <p class="section-heading__number">06</p>
+
+                <div>
+                    <h2>REFERENCE</h2>
+                    <p>参考にした資料</p>
+                </div>
+            </div>
+
+            <h3 class="content-heading">DirectX 12</h3>
+            <ul class="content-list">
+                <li>書籍 : DirectX12の魔導書、HLSLの魔導書</li>
+                <li>Web : もんしょの巣窟</li>
+                <li><a href="https://qiita.com/kyooooooooma/items/c43dd8b96cc104cb6713" target="_blank" rel="noopener">ベース部分の参考(一通り移した後に改造を重ねました)</a></li>
+                <li>解説シリーズ : DirectX12で1からフレームワーク制作、DirectX12でミクさんを躍らせてみよう</li>
+                <li>AI : ChatGPT</li>
+            </ul>
+
+            <h3 class="content-heading">レイトレーシング・メッシュシェーダー</h3>
+            <ul class="content-list">
+                <li>レイトレーシング : HLSLの魔導書</li>
+                <li>メッシュシェーダー : ゆっくり寺子屋チャンネル</li>
+            </ul>
+
+            <h3 class="content-heading">HLSL・レンダリング技術</h3>
+            <ul class="content-list">
+                <li>HLSLの魔導書 : ラジアルブラー、高瀬式ブルーム、レイトレーシング、物理ベースレンダリング、影、ライティング</li>
+                <li><a href="https://www.docswell.com/s/CAPCOM_RandD/ZRXJP2-RE2023#p20" target="_blank" rel="noopener">レンダリングの基礎 (1)</a></li>
+                <li><a href="https://www.docswell.com/s/2191436787/ZENEP7-2023-05-25-230031#p20" target="_blank" rel="noopener">レンダリングの基礎 (2)</a></li>
+                <li><a href="https://www.siliconstudio.co.jp/business/technology/blog/4021/" target="_blank" rel="noopener">コンピュートシェーダーの基礎</a></li>
+                <li><a href="https://www.technicalife.net/pbr-ibl-rendering-2025/" target="_blank" rel="noopener">PBR と IBL</a></li>
+                <li><a href="https://qiita.com/2dgames_jp/items/849d44752fcec8f15136" target="_blank" rel="noopener">放射ブラー</a></li>
+            </ul>
+        </section>
 
     </main>
 
