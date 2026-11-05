@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="約 18 万行のエンジンを読みやすく保つために、規約を文書化し、依存を図と数字で確かめながら直しました。">
+    <title>CODING | Portfolio</title>
+
+    <!-- ========================================
+         STYLESHEET
+    ======================================== -->
+    <link rel="stylesheet" href="../../CSS/Common.css">
+    <link rel="stylesheet" href="../../CSS/Skill.css">
+
+    <!-- ========================================
+         SCRIPT
+    ======================================== -->
+    <script src="../../Script/Common.js" defer></script>
+</head>
+
+<body>
+
+    <!-- ========================================
+         HEADER
+         PC用の固定ナビゲーション
+    ======================================== -->
+    <header class="site-header">
+        <a class="site-logo" href="../../index.html#top">PORTFOLIO<span>.</span></a>
+
+        <nav class="header-nav" aria-label="メインメニュー">
+            <a href="../../index.html#profile">PROFILE</a>
+            <a href="../../index.html#projects">PROJECTS</a>
+            <a href="../../index.html#technical">TECHNICAL</a>
+            <a href="../../index.html#contact">CONTACT</a>
+        </nav>
+    </header>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ======================================== -->
+    <main id="top">
+
+        <section class="detail-hero">
+            <a class="detail-back" href="../../index.html#technical">
+                <span>←</span> TECHNICALへ戻る
+            </a>
+
+            <p class="detail-hero__label">CODE QUALITY</p>
+            <h1>CODING</h1>
+            <p class="detail-hero__text">約 18 万行のエンジンを読みやすく保つために、規約を文書化し、依存を図と数字で確かめながら直しました。</p>
+        </section>
+
+
+        <!-- ========================================
+             OVERVIEW : 概要
+        ======================================== -->
+        <section class="section detail-section" id="overview">
+            <div class="section-heading">
+                <p class="section-heading__number">01</p>
+
+                <div>
+                    <h2>OVERVIEW</h2>
+                    <p>概要</p>
+                </div>
+            </div>
+
+            <div class="prose">
+                <p>動いたら終わりにせず、VECTOR REIGN のエンジンを読みやすく直しやすい状態に保つために行った取り組みです。規約、依存図、監査の記録を残しながら進めました。</p>
+            </div>
+        </section>
+
+
+        <!-- ========================================
+             ARCHITECTURE : 設計
+        ======================================== -->
+        <section class="section detail-section" id="architecture">
+            <div class="section-heading">
+                <p class="section-heading__number">02</p>
+
+                <div>
+                    <h2>ARCHITECTURE</h2>
+                    <p>設計</p>
+                </div>
+            </div>
+
+            <div class="detail-split">
+                <div>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../Images/Skill/Coding.svg" alt="4 層の依存の向きと、シングルトンと層の逆流の削減" loading="lazy"></div>
+                <figcaption>依存の向きを一方向に保ちます。</figcaption>
+            </figure>
+                </div>
+                <div>
+            <ul class="content-list">
+                <li><strong>層の分離</strong> : Core、Engine、Application、Editor に分け、下の層から上の層を参照しません。</li>
+                <li><strong>窓口を介する</strong> : エンジンからは、エディターを <code>IDevTool</code> としてだけ見ます。</li>
+                <li><strong>持ち主の木</strong> : 多くのマネージャーを持ち主の <code>unique_ptr</code> にしました。必要なものは引数のコンテキストで配ります。</li>
+                <li><strong>PCH の分割</strong> : 層ごとにプリコンパイル済みヘッダーを分けました。</li>
+            </ul>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================
+             IMPLEMENTATION : 実装
+        ======================================== -->
+        <section class="section detail-section" id="implementation">
+            <div class="section-heading">
+                <p class="section-heading__number">03</p>
+
+                <div>
+                    <h2>IMPLEMENTATION</h2>
+                    <p>実装</p>
+                </div>
+            </div>
+
+            <h3 class="content-heading">規約を決めて文書化する</h3>
+            <div class="prose">
+                <p>命名、所有、依存、コメント、ECS、レンダーグラフなどの決まりを、約 890 行の文書にまとめました。</p>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>項目</th><th>決まり</th><th>ねらい</th></tr></thead>
+                    <tbody>
+                        <tr><td>命名</td><td>引数 <code>a_</code>、ローカル <code>_</code>、メンバ <code>m_</code>、static <code>s_</code></td><td>変数の種類を、名前から読めるようにする</td></tr>
+                        <tr><td>略語</td><td>定着した略語だけを許可リストにする</td><td><code>_texMgr</code> のような独自の省略をなくす</td></tr>
+                        <tr><td>Enum</td><td><code>enum class</code> のみ。型名は <code>E</code> から始める</td><td>書き方をそろえ、Enum だと名前から分かるようにする</td></tr>
+                        <tr><td>Namespace</td><td>ディレクトリと対応させる</td><td>コードの置き場所を名前から分かるようにする</td></tr>
+                        <tr><td>所有権</td><td><code>unique_ptr</code> が基本。<code>shared_ptr</code> は理由があるときだけ</td><td>誰が持ち主かをコードから読めるようにする</td></tr>
+                        <tr><td>依存</td><td>Editor → App → Engine → Core の一方向。逆向きは禁止</td><td>層をまたぐ変更の影響を限定する</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="content-heading">依存を見える形にしてから直す</h3>
+            <ul class="content-list">
+                <li>クラスの依存図を Excalidraw 形式で自動生成し、層の逆流、循環、どこからでも書ける状態の3つを直す対象にしました。</li>
+                <li>1フェーズ1テーマで進め、フェーズの終わりに起動、シーン読み込み、ゲームモードの往復、エディター操作を確認しました。</li>
+                <li>呼び出し回数をコマンドで数え、各フェーズの前後で記録しました。</li>
+                <li>ログの呼び出しのように、ロジックが動かず効果の大きいものから手を付けました。</li>
+            </ul>
+
+            <h3 class="content-heading">残すものは理由を説明できるようにする</h3>
+            <ul class="content-list">
+                <li>シングルトンをゼロにすることは目的にせず、残す判断の基準を先に決めました。</li>
+                <li><strong>MainEngine</strong> : アプリの入口なので残しました。</li>
+                <li><strong>ResourceManager</strong> : <code>ResourceRef&lt;T&gt;</code> が値としてアセットに埋まり、引数で渡せないので、入口として残しました。</li>
+                <li>残す予定だった <code>D3D12Wrapper</code> は、Device を引数で渡してみると持ち主に入れる方が素直だと分かり、やめました。</li>
+            </ul>
+
+            <h3 class="content-heading">規約への適合を監査する</h3>
+            <ul class="content-list">
+                <li>機械的に判定できる項目はスクリプトで全数を出し、誤検出を目で除きました。設計に関わる項目はコードを読んで判断しました。</li>
+                <li>修正の前後に同じ計測を当てて、件数の変化を記録しました。</li>
+                <li>監査と機械的な修正には Claude Code も使いました。構造を変える修正は、内容を確認して判断しています。</li>
+            </ul>
+
+            <h3 class="content-heading">以前の作品の反省を生かす</h3>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>以前の作品の改善点</th><th>VECTOR REIGN での対応</th></tr></thead>
+                    <tbody>
+                        <tr><td>機能とアプリケーションを分ける</td><td>Core、Engine、Application、Editor の4層に分離</td></tr>
+                        <tr><td>オブジェクトが増えるたびにクラスが増える</td><td>ECS とプレハブで、コンポーネントの組み合わせとして作る</td></tr>
+                        <tr><td>命名規則の統一</td><td>規約に定め、違反を数えて修正</td></tr>
+                        <tr><td>クラスの機能分割ができていない</td><td>武器の手、肩、発射方式、反動などをコンポーネントに分割</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+        <!-- ========================================
+             RESULT : 成果・計測
+        ======================================== -->
+        <section class="section detail-section" id="result">
+            <div class="section-heading">
+                <p class="section-heading__number">04</p>
+
+                <div>
+                    <h2>RESULT</h2>
+                    <p>成果・計測</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>項目</th><th>修正前</th><th>修正後</th></tr></thead>
+                    <tbody>
+                        <tr><td>シングルトンの数</td><td>13</td><td>2</td></tr>
+                        <tr><td>シングルトンの呼び出し回数</td><td>629</td><td>77</td></tr>
+                        <tr><td>シングルトンを呼ぶファイル数</td><td>142</td><td>27</td></tr>
+                        <tr><td>層の逆流(ファイル数)</td><td>13</td><td>0</td></tr>
+                        <tr><td>D3D12 層の循環</td><td>1 組</td><td>0 組</td></tr>
+                        <tr><td>監査の Critical</td><td>18</td><td>0</td></tr>
+                        <tr><td>監査の High</td><td>439</td><td>23</td></tr>
+                        <tr><td>理由のない <code>shared_ptr</code></td><td>35</td><td>0</td></tr>
+                        <tr><td>独自の略語</td><td>60</td><td>0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="prose">
+                <p>シングルトンと循環は 2026 年 9 月 10 日から 10 月 9 日まで、それ以外は 2026 年 10 月の監査の修正前後の数字です。現在の規模は 1,319 ファイル、約 18 万行です。</p>
+            </div>
+
+            <h3 class="content-heading">残っている課題</h3>
+
+            <ul class="content-list">
+                <li>自動テストがなく、確認は手順に沿った手動の起動確認です。</li>
+                <li>基準を厳しくした 2026 年 11 月の再監査で、XML コメントのある関数宣言は全体の 13% でした。</li>
+                <li>マジックナンバーの決まりがまだ規約にありません。処理の中の値から順に直します。</li>
+            </ul>
+        </section>
+
+
+        <!-- ========================================
+             CODE : 主な資料とコード
+        ======================================== -->
+        <section class="section detail-section" id="code">
+            <div class="section-heading">
+                <p class="section-heading__number">05</p>
+
+                <div>
+                    <h2>CODE</h2>
+                    <p>主な資料とコード</p>
+                </div>
+            </div>
+
+            <ul class="code-list">
+                <li><code>環境/Docs/CodingStandards.md</code></li>
+                <li><code>環境/Docs/CodingRulesAudit.md</code></li>
+                <li><code>環境/REFACTORING_PLAN.md</code></li>
+                <li><code>環境/DependenceView/</code></li>
+                <li><code>Source/Core/CorePCH.h</code></li>
+                <li><code>Source/Engine/EnginePCH.h</code></li>
+                <li><code>Source/Application/AppPCH.h</code></li>
+                <li><code>Source/Editor/EditorPCH.h</code></li>
+            </ul>
+        </section>
+
+
+        <!-- ========================================
+             REFERENCE : 参考にした資料
+        ======================================== -->
+        <section class="section detail-section" id="reference">
+            <div class="section-heading">
+                <p class="section-heading__number">06</p>
+
+                <div>
+                    <h2>REFERENCE</h2>
+                    <p>参考にした資料</p>
+                </div>
+            </div>
+
+            <ul class="content-list">
+                <li><a href="https://note.com/toylogic/n/n04b81028f6e0" target="_blank" rel="noopener">コーディングルール、プロジェクト規約の参考</a></li>
+                <li><a href="https://jumble-note.blogspot.com/2017/12/c.html#p6" target="_blank" rel="noopener">enum class の管理</a></li>
+                <li><a href="https://zenn.dev/kd_gamegikenblg/articles/7dd758750cbff9" target="_blank" rel="noopener">リファクタリングツール</a></li>
+            </ul>
+        </section>
+
+    </main>
+
+
+    <!-- ========================================
+         FOOTER
+    ======================================== -->
+    <footer class="site-footer">
+        <a href="#top">BACK TO TOP ↑</a>
+        <p>© 2026 PORTFOLIO</p>
+    </footer>
+
+
+    <!-- ========================================
+         MOBILE MENU
+         スマートフォン用のナビゲーション
+    ======================================== -->
+    <button
+        class="mobile-menu-button"
+        type="button"
+        aria-label="メニューを開く"
+        aria-expanded="false"
+        aria-controls="mobile-menu">
+
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </button>
+
+    <nav
+        class="mobile-menu"
+        id="mobile-menu"
+        aria-label="スマートフォン用メニュー"
+        aria-hidden="true">
+
+        <a href="../../index.html#profile"><span>01</span> PROFILE</a>
+        <a href="../../index.html#projects"><span>02</span> PROJECTS</a>
+        <a href="../../index.html#technical"><span>03</span> TECHNICAL</a>
+        <a href="../../index.html#contact"><span>04</span> CONTACT</a>
+
+    </nav>
+
+</body>
+</html>
