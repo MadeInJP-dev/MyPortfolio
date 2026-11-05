@@ -1,14 +1,234 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Portfolio</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ゲームプログラマーを目指す制作者のポートフォリオです。">
+    <title>Portfolio</title>
+    <link rel="stylesheet" href="CSS/Common.css">
+    <link rel="stylesheet" href="CSS/home.css">
 </head>
 <body>
-  <h1>はじめまして！</h1>
-  <p>ゲームプログラマーを目指しています。</p>
-  <script src="script.js"></script>
+    <header class="site-header">
+        <a class="site-logo" href="#top">PORTFOLIO<span>.</span></a>
+
+        <nav class="header-nav" aria-label="メインメニュー">
+            <a href="#profile">PROFILE</a>
+            <a href="#projects">PROJECTS</a>
+            <a href="#technical">TECHNICAL</a>
+            <a href="#contact">CONTACT</a>
+        </nav>
+    </header>
+
+    <main id="top">
+        <section class="intro">
+            <p class="intro__label">GAME PROGRAMMER PORTFOLIO</p>
+            <h1>PORTFOLIO</h1>
+            <p class="intro__text">ゲームプログラマーを目指す制作者のポートフォリオ</p>
+
+            <nav class="contents" aria-label="ページ内目次">
+                <p class="contents__title">CONTENTS</p>
+                <div class="contents__links">
+                    <a href="#profile"><span>01</span> PROFILE</a>
+                    <a href="#projects"><span>02</span> PROJECTS</a>
+                    <a href="#technical"><span>03</span> TECHNICAL</a>
+                    <a href="#contact"><span>04</span> CONTACT</a>
+                </div>
+            </nav>
+        </section>
+
+        <section class="section profile-section" id="profile">
+            <div class="section-heading">
+                <p class="section-heading__number">01</p>
+                <div>
+                    <h2>PROFILE</h2>
+                    <p>自己紹介</p>
+                </div>
+            </div>
+
+            <div class="profile-content">
+                <div class="profile-content__image">
+                    <img src="images/profile.jpg" alt="プロフィール画像">
+                </div>
+                <div class="profile-content__text">
+                    <h3>ゲームプログラマーを目指して</h3>
+                    <p>
+                        ここに自己紹介を記載します。これまで取り組んできたことや、
+                        ゲーム開発で大切にしていること、得意分野などを簡潔に紹介してください。
+                    </p>
+                    <p>
+                        使用技術や学習内容など、詳しい情報はプロフィール詳細ページにまとめることもできます。
+                    </p>
+                    <a class="text-link" href="pages/profile.html">プロフィール詳細 <span>→</span></a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section projects-section" id="projects">
+            <div class="section-heading">
+                <p class="section-heading__number">02</p>
+                <div>
+                    <h2>PROJECTS</h2>
+                    <p>作品紹介</p>
+                </div>
+            </div>
+
+            <div class="item-list">
+                <article class="feature-item">
+                    <a class="feature-item__image" href="pages/project-3d.html">
+                        <img src="images/project_3d/main.jpg" alt="3Dメカアクションゲーム">
+                    </a>
+                    <div class="feature-item__body">
+                        <p class="feature-item__category">MAIN PROJECT / 3D ACTION</p>
+                        <h3>3Dメカアクションゲーム</h3>
+                        <p>制作したゲームの概要を記載します。ゲームの特徴やこだわった部分、担当した実装などを短く紹介します。</p>
+                        <a class="button-link" href="pages/project-3d.html">作品を見る <span>→</span></a>
+                    </div>
+                </article>
+
+                <article class="feature-item">
+                    <a class="feature-item__image" href="pages/project-2-5d.html">
+                        <img src="images/project_2_5d/main.jpg" alt="2.5D箱庭探索ゲーム">
+                    </a>
+                    <div class="feature-item__body">
+                        <p class="feature-item__category">MAIN PROJECT / 2.5D</p>
+                        <h3>2.5D箱庭探索ゲーム</h3>
+                        <p>作品のコンセプトやゲームシステム、技術面で工夫した点などを簡潔に紹介します。</p>
+                        <a class="button-link" href="pages/project-2-5d.html">作品を見る <span>→</span></a>
+                    </div>
+                </article>
+
+                <article class="feature-item">
+                    <a class="feature-item__image" href="pages/game-jam.html">
+                        <img src="images/gamejam/main.jpg" alt="ゲームジャム作品">
+                    </a>
+                    <div class="feature-item__body">
+                        <p class="feature-item__category">GAME JAM</p>
+                        <h3>ゲームジャム作品</h3>
+                        <p>短期間で制作した作品です。制作期間やチーム内での担当、完成までに工夫したことを紹介します。</p>
+                        <a class="button-link" href="pages/game-jam.html">作品を見る <span>→</span></a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="section technical-section" id="technical">
+            <div class="section-heading">
+                <p class="section-heading__number">03</p>
+                <div>
+                    <h2>TECHNICAL</h2>
+                    <p>技術紹介</p>
+                </div>
+            </div>
+
+            <div class="item-list">
+                <article class="feature-item">
+                    <a class="feature-item__image feature-item__image--technical" href="pages/ecs.html">
+                        <img src="images/technical/ecs.jpg" alt="ECSの構成図">
+                    </a>
+                    <div class="feature-item__body">
+                        <p class="feature-item__category">ENGINE ARCHITECTURE</p>
+                        <h3>ECS</h3>
+                        <p>Archetype・Chunkを用いたECSの設計と実装について、データ構造やシステムの構成を紹介します。</p>
+                        <a class="button-link" href="pages/ecs.html">技術詳細を見る <span>→</span></a>
+                    </div>
+                </article>
+
+                <article class="feature-item">
+                    <a class="feature-item__image feature-item__image--technical" href="pages/job-system.html">
+                        <img src="images/technical/job-system.jpg" alt="Job Systemの構成図">
+                    </a>
+                    <div class="feature-item__body">
+                        <p class="feature-item__category">MULTITHREADING</p>
+                        <h3>JOB SYSTEM</h3>
+                        <p>タスクの分割やワーカースレッドによる並列実行など、Job Systemの仕組みを紹介します。</p>
+                        <a class="button-link" href="pages/job-system.html">技術詳細を見る <span>→</span></a>
+                    </div>
+                </article>
+
+                <article class="feature-item">
+                    <a class="feature-item__image feature-item__image--technical" href="pages/directx12.html">
+                        <img src="images/technical/directx12.jpg" alt="DirectX 12の描画画面">
+                    </a>
+                    <div class="feature-item__body">
+                        <p class="feature-item__category">GRAPHICS</p>
+                        <h3>DIRECTX 12</h3>
+                        <p>DirectX 12を用いた描画エンジンの構築や、Deferred Rendering・Ray Tracingなどを紹介します。</p>
+                        <a class="button-link" href="pages/directx12.html">技術詳細を見る <span>→</span></a>
+                    </div>
+                </article>
+
+                <article class="feature-item">
+                    <a class="feature-item__image feature-item__image--technical" href="pages/optimization.html">
+                        <img src="images/technical/optimization.jpg" alt="パフォーマンス計測画面">
+                    </a>
+                    <div class="feature-item__body">
+                        <p class="feature-item__category">PERFORMANCE</p>
+                        <h3>OPTIMIZATION</h3>
+                        <p>CPU負荷やメモリアクセスを意識した設計、処理負荷の計測と改善について紹介します。</p>
+                        <a class="button-link" href="pages/optimization.html">技術詳細を見る <span>→</span></a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="section contact-section" id="contact">
+            <div class="section-heading">
+                <p class="section-heading__number">04</p>
+                <div>
+                    <h2>CONTACT</h2>
+                    <p>連絡先</p>
+                </div>
+            </div>
+            <p class="contact-section__text">ご覧いただきありがとうございます。</p>
+            <p class="contact-section__note">連絡先やGitHubなどのリンクをここに記載します。</p>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <a href="#top">BACK TO TOP ↑</a>
+        <p>© 2026 PORTFOLIO</p>
+    </footer>
+
+    <button class="mobile-menu-button" type="button" aria-label="メニューを開く" aria-expanded="false" aria-controls="mobile-menu">
+        <span></span><span></span><span></span>
+    </button>
+
+    <nav class="mobile-menu" id="mobile-menu" aria-label="スマートフォン用メニュー" aria-hidden="true">
+        <a href="#profile"><span>01</span> PROFILE</a>
+        <a href="#projects"><span>02</span> PROJECTS</a>
+        <a href="#technical"><span>03</span> TECHNICAL</a>
+        <a href="#contact"><span>04</span> CONTACT</a>
+    </nav>
+
+    <script>
+        const menuButton = document.querySelector(".mobile-menu-button");
+        const mobileMenu = document.querySelector(".mobile-menu");
+        const mobileMenuLinks = mobileMenu.querySelectorAll("a");
+
+        function closeMenu() {
+            menuButton.classList.remove("is-open");
+            mobileMenu.classList.remove("is-open");
+            menuButton.setAttribute("aria-expanded", "false");
+            menuButton.setAttribute("aria-label", "メニューを開く");
+            mobileMenu.setAttribute("aria-hidden", "true");
+        }
+
+        menuButton.addEventListener("click", () => {
+            const isOpen = menuButton.classList.toggle("is-open");
+            mobileMenu.classList.toggle("is-open", isOpen);
+            menuButton.setAttribute("aria-expanded", String(isOpen));
+            menuButton.setAttribute("aria-label", isOpen ? "メニューを閉じる" : "メニューを開く");
+            mobileMenu.setAttribute("aria-hidden", String(!isOpen));
+        });
+
+        mobileMenuLinks.forEach((link) => {
+            link.addEventListener("click", closeMenu);
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") closeMenu();
+        });
+    </script>
 </body>
 </html>
