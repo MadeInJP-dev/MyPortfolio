@@ -23,16 +23,26 @@
 
     <!-- ========================================
          HEADER
-         PC用の固定ナビゲーション
+         現在地・このページの項目一覧・HOMEへ戻るリンク
     ======================================== -->
     <header class="site-header">
-        <a class="site-logo" href="../../index.html#top">PORTFOLIO<span>.</span></a>
+        <div class="header-location">
+            <a class="header-home" href="../../index.html"><span>←</span> HOMEへ戻る</a>
+            <nav class="header-breadcrumb" aria-label="現在地">
+                <a href="../../index.html#projects">PROJECTS</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">ゲームジャム作品</span>
+            </nav>
+        </div>
 
-        <nav class="header-nav" aria-label="メインメニュー">
-            <a href="../../index.html#profile">PROFILE</a>
-            <a href="../../index.html#projects">PROJECTS</a>
-            <a href="../../index.html#technical">TECHNICAL</a>
-            <a href="../../index.html#contact">CONTACT</a>
+        <nav class="header-nav" aria-label="このページの項目">
+            <a href="#overview">OVERVIEW</a>
+            <a href="#play-movie">PLAY MOVIE</a>
+            <a href="#rule">RULE</a>
+            <a href="#impact">IMPACT</a>
+            <a href="#my-role">MY ROLE</a>
+            <a href="#gallery">GALLERY</a>
+            <a href="#credit">CREDIT</a>
         </nav>
     </header>
 
@@ -248,10 +258,13 @@
         aria-label="スマートフォン用メニュー"
         aria-hidden="true">
 
-        <a href="../../index.html#profile"><span>01</span> PROFILE</a>
-        <a href="../../index.html#projects"><span>02</span> PROJECTS</a>
-        <a href="../../index.html#technical"><span>03</span> TECHNICAL</a>
-        <a href="../../index.html#contact"><span>04</span> CONTACT</a>
+        <a href="#overview"><span>01</span> OVERVIEW</a>
+        <a href="#play-movie"><span>02</span> PLAY MOVIE</a>
+        <a href="#rule"><span>03</span> RULE</a>
+        <a href="#impact"><span>04</span> IMPACT</a>
+        <a href="#my-role"><span>05</span> MY ROLE</a>
+        <a href="#gallery"><span>06</span> GALLERY</a>
+        <a href="#credit"><span>07</span> CREDIT</a>
 
     </nav>
 

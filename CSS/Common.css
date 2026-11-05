@@ -63,22 +63,64 @@ button {
     backdrop-filter: blur(12px);
 }
 
-.site-logo {
-    font-family: var(--font-display);
-    font-size: 1rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
+.header-location {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 16px;
 }
 
-.site-logo span {
+.header-home {
+    flex-shrink: 0;
+    padding-right: 16px;
+    border-right: 1px solid var(--color-border);
+    color: var(--color-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.6;
+    transition: color 0.2s ease;
+}
+
+.header-home:hover {
     color: var(--color-accent);
+}
+
+.header-breadcrumb {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-display);
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+.header-breadcrumb a {
+    color: var(--color-muted);
+    transition: color 0.2s ease;
+}
+
+.header-breadcrumb a:hover {
+    color: var(--color-accent);
+}
+
+.header-breadcrumb span[aria-hidden] {
+    color: var(--color-muted);
+}
+
+.header-breadcrumb [aria-current] {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .header-nav {
     display: flex;
     height: 100%;
+    flex-shrink: 0;
     align-items: center;
-    gap: 32px;
+    gap: 22px;
 }
 
 .header-nav a {
@@ -88,13 +130,15 @@ button {
     border-bottom: 2px solid transparent;
     color: var(--color-muted);
     font-family: var(--font-display);
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
     transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-.header-nav a:hover {
+.header-nav a:hover,
+.header-nav a[aria-current] {
     border-bottom-color: var(--color-accent);
     color: var(--color-accent);
 }
@@ -209,11 +253,22 @@ button {
     }
 
     .site-header {
-        padding-inline: 22px;
+        padding-inline: 20px;
     }
 
-    .header-nav {
-        display: none;
+    .header-location {
+        gap: 10px;
+    }
+
+    .header-home {
+        padding-right: 10px;
+        font-size: 0.68rem;
+    }
+
+    .header-breadcrumb {
+        gap: 5px;
+        font-size: 0.72rem;
+        letter-spacing: 0.02em;
     }
 
     .section {
@@ -228,6 +283,13 @@ button {
     .site-footer {
         min-height: 76px;
         padding-inline: 20px;
+    }
+}
+
+/* 項目がヘッダーに収まらない幅では、項目一覧をメニューボタンへ移す */
+@media (max-width: 1040px) {
+    .header-nav {
+        display: none;
     }
 
     .mobile-menu-button {
@@ -307,6 +369,10 @@ button {
 
     .mobile-menu a:last-child {
         border-bottom: 0;
+    }
+
+    .mobile-menu a[aria-current] {
+        color: var(--color-accent);
     }
 
     .mobile-menu a span {

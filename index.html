@@ -22,12 +22,16 @@
 
     <!-- ========================================
          HEADER
-         PC用の固定ナビゲーション
+         現在地・このページの項目一覧・HOMEへ戻るリンク
     ======================================== -->
     <header class="site-header">
-        <a class="site-logo" href="#top">PORTFOLIO<span>.</span></a>
+        <div class="header-location">
+            <nav class="header-breadcrumb" aria-label="現在地">
+                <span aria-current="page">HOME</span>
+            </nav>
+        </div>
 
-        <nav class="header-nav" aria-label="メインメニュー">
+        <nav class="header-nav" aria-label="このページの項目">
             <a href="#profile">PROFILE</a>
             <a href="#projects">PROJECTS</a>
             <a href="#technical">TECHNICAL</a>

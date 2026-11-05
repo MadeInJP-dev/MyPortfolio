@@ -38,3 +38,32 @@ document.addEventListener("keydown", (event) => {
         closeMenu();
     }
 });
+
+// 表示中の項目をヘッダーとメニューで強調する
+const pageItemLinks = document.querySelectorAll(".header-nav a, .mobile-menu a");
+const pageSections = [...document.querySelectorAll(".header-nav a")]
+    .map((link) => document.querySelector(link.hash));
+
+function updateCurrentItem() {
+    // 項目へ移動すると、見出しの余白ぶん（ヘッダーの下 100px 強）を空けて止まる
+    const currentLine = document.querySelector(".site-header").offsetHeight + 120;
+    const isAtBottom =
+        window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
+
+    const passedSections = pageSections.filter(
+        (section) => section.getBoundingClientRect().top <= currentLine
+    );
+    const currentSection = isAtBottom ? pageSections.at(-1) : passedSections.at(-1);
+
+    pageItemLinks.forEach((link) => {
+        if (currentSection && link.hash === `#${currentSection.id}`) {
+            link.setAttribute("aria-current", "location");
+        } else {
+            link.removeAttribute("aria-current");
+        }
+    });
+}
+
+window.addEventListener("scroll", updateCurrentItem, { passive: true });
+window.addEventListener("resize", updateCurrentItem);
+updateCurrentItem();
