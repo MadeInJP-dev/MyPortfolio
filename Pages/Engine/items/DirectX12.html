@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="自作エンジンの DirectX 12 による描画の詳細です。">
+    <title>DirectX 12 の描画 | 自作エンジン | Portfolio</title>
+
+    <!-- ========================================
+         STYLESHEET
+    ======================================== -->
+    <link rel="stylesheet" href="../../../CSS/Common.css">
+    <link rel="stylesheet" href="../../../CSS/Detail.css">
+    <link rel="stylesheet" href="../../../CSS/Engine.css">
+
+    <!-- ========================================
+         SCRIPT
+    ======================================== -->
+    <script src="../../../Script/Common.js" defer></script>
+    <script src="../../../Script/Video.js" defer></script>
+</head>
+
+<body>
+
+    <!-- ========================================
+         HEADER
+         現在地・このページの項目一覧・HOMEへ戻るリンク
+    ======================================== -->
+    <header class="site-header">
+        <div class="header-location">
+            <a class="header-home" href="../../../index.html"><span>←</span> ホームへ戻る</a>
+            <nav class="header-breadcrumb" aria-label="現在地">
+                <a href="../EngineHome.html">自作エンジン</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">DirectX 12 の描画</span>
+            </nav>
+        </div>
+
+        <nav class="header-nav" aria-label="このページの項目">
+            <a href="#overview">概要</a>
+            <a href="#movie">動作動画</a>
+            <a href="#structure">仕組み</a>
+            <a href="#implementation">実装</a>
+            <a href="#result">成果と計測</a>
+            <a href="#code">主なコード</a>
+            <a href="#reference">参考資料</a>
+        </nav>
+    </header>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ======================================== -->
+    <main id="top">
+
+        <section class="detail-hero">
+            <a class="detail-back" href="../EngineHome.html#pickup"><span>←</span> 自作エンジン紹介へ戻る</a>
+            <p class="detail-hero__label">自作エンジン / 技術詳細</p>
+            <h1>DirectX 12 の描画</h1>
+            <p class="detail-hero__text">レンダーグラフを土台に、メッシュシェーダーやレイトレーシングなど現行世代の GPU 機能をゲームの画面作りへ組み込みました。</p>
+        </section>
+
+        <!-- ========================================
+             概要
+        ======================================== -->
+        <section class="section detail-section" id="overview">
+            <div class="section-heading">
+                <p class="section-heading__number">01</p>
+
+                <div>
+                    <h2>概要</h2>
+                    <p>描画の全体像</p>
+                </div>
+            </div>
+
+            <div class="prose">
+                <p>描画の順番を C++ に固定せず、データとして持っています。パスの接続はノードエディターで編集でき、シーンごとに別のパイプラインを割り当てています。</p>
+            </div>
+            <h3 class="content-heading">シーンごとに描画を使い分ける</h3>
+            <ul class="content-list">
+                <li>速さが大切な戦闘シーンは、シャドウマップを中心にしたパイプラインです。GI と反射は外しています。</li>
+                <li>見た目を見せる格納庫は、レイトレーシングの GI・反射とボリュメトリックフォグを使うパイプラインです。</li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             動作動画
+        ======================================== -->
+        <section class="section detail-section" id="movie">
+            <div class="section-heading">
+                <p class="section-heading__number">02</p>
+
+                <div>
+                    <h2>動作動画</h2>
+                    <p>実際に動いている様子</p>
+                </div>
+            </div>
+
+            <!-- data-youtube に YouTube の動画 ID か URL を入れると埋め込まれます -->
+            <div class="video-embed" data-youtube="" data-title="DirectX 12 の描画の動作動画">
+                <p class="video-embed__placeholder">動画は準備中です</p>
+            </div>
+        </section>
+
+        <!-- ========================================
+             仕組み
+        ======================================== -->
+        <section class="section detail-section" id="structure">
+            <div class="section-heading">
+                <p class="section-heading__number">03</p>
+
+                <div>
+                    <h2>仕組み</h2>
+                    <p>レンダーグラフ</p>
+                </div>
+            </div>
+
+            <div class="detail-split">
+                <figure class="content-figure">
+                    <div class="detail-media"><img src="../../../Images/Engine/DX12_Rendering.svg" alt="レンダーグラフの抜粋図" loading="lazy"></div>
+                    <figcaption>戦闘シーンのパイプラインの抜粋。実際の接続はもっと多く、影やフォグのパスも含みます。</figcaption>
+                </figure>
+                <ul class="content-list">
+                    <li>パスの入出力からトポロジカルソートで<strong>実行順を決めます</strong>。循環があるときはコンパイルを失敗させます。</li>
+                    <li>リソースの状態が変わるところに<strong>バリアを自動で入れます</strong>。</li>
+                    <li>使う期間が重ならないリソースは<strong>1つのヒープで共有</strong>します(メモリエイリアシング)。</li>
+                    <li>前フレームの結果を読む TAA のような構成も、循環にならない形で表せます。</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ========================================
+             実装
+        ======================================== -->
+        <section class="section detail-section" id="implementation">
+            <div class="section-heading">
+                <p class="section-heading__number">04</p>
+
+                <div>
+                    <h2>実装</h2>
+                    <p>工夫したところ</p>
+                </div>
+            </div>
+
+            <h3 class="content-heading">メッシュシェーダーと GPU での LOD 選択</h3>
+            <ul class="content-list">
+                <li>すべてのメッシュをメッシュレットに分け、増幅シェーダーで視錐台カリングと裏面(法線コーン)カリングを行います。</li>
+                <li>LOD は画面に占める割合から GPU で選ぶので、影のカスケードごとに違う段を選べます。</li>
+            </ul>
+            <h3 class="content-heading">レイトレーシング</h3>
+            <ul class="content-list">
+                <li>GI と影は DispatchRays、反射とボリューム影、ボス撃破の光の筋は RayQuery と、用途で使い分けます。</li>
+                <li>時間方向の蓄積と空間フィルターでノイズを消します。GI は低解像度で計算してから拡大します。</li>
+                <li>スキニング後の頂点で BLAS を更新し、静的な BLAS は複数フレームに分けて圧縮します。</li>
+                <li>ボイドは光の筋が出ている間だけ、レイトレーシングの対象に登録します。</li>
+            </ul>
+            <h3 class="content-heading">GPU パーティクルとポストエフェクト</h3>
+            <ul class="content-list">
+                <li>発生・更新・描画リストの作成をコンピュートシェーダーで行い、<code>ExecuteIndirect</code> で描画します。</li>
+                <li>フリップブックとプリマルチプライドアルファで、煙や炎に立体感を出します。</li>
+                <li>アセットをまたいで粒を集め、バイトニックソートで遠い順に並べます。</li>
+                <li>PBR のディファード、カスケードシャドウ、ボリュメトリックフォグ、GTAO、TAA、ACES のトーンマップを実装しました。</li>
+            </ul>
+            <h3 class="content-heading">VRAM を使う分だけ確保する</h3>
+            <ul class="content-list">
+                <li>リソースに用途の札を付けて VRAM を用途別に集計し、エディターで確認できるようにしてから削りました。</li>
+                <li><strong>可変長のメガバッファ</strong> : 予約リソースで、必要な分だけ 4 MB 単位でヒープを割り当てます。空きが続いた領域は、GPU が使い終わったのをフェンスで確かめてから手放します。</li>
+                <li><strong>頂点形式の分割</strong> : 静的な頂点は八面体エンコードの法線・接線で 32 バイト、ボーンの割り当ては 16 バイトの別バッファにしました。</li>
+                <li><strong>BLAS の圧縮</strong> : ビルド後に圧縮サイズを読み戻し、複数フレームに分けて差し替えます。</li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             成果と計測
+        ======================================== -->
+        <section class="section detail-section" id="result">
+            <div class="section-heading">
+                <p class="section-heading__number">05</p>
+
+                <div>
+                    <h2>成果と計測</h2>
+                    <p>数字で見る</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>項目</th><th>値</th></tr></thead>
+                    <tbody>
+                        <tr><td>テストシーンの GPU メモリ</td><td>3,858 MiB → 1,697 MiB</td></tr>
+                        <tr><td>描画パスの種類</td><td>43 種(テスト用を含む)</td></tr>
+                        <tr><td>戦闘シーンのパイプライン</td><td>34 パス / 59 接続</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- 未記入: パスごとの GPU 時間、シーンごとの FPS を追加する場合は上の表に行を足す -->
+            <div class="prose">
+                <p>動作確認環境 : Intel Core i7-14650HX(論理24スレッド)/ NVIDIA GeForce RTX 5060 Laptop GPU / メモリ 16 GB</p>
+            </div>
+        </section>
+
+        <!-- ========================================
+             主なコード
+        ======================================== -->
+        <section class="section detail-section" id="code">
+            <div class="section-heading">
+                <p class="section-heading__number">06</p>
+
+                <div>
+                    <h2>主なコード</h2>
+                    <p>ソースの場所</p>
+                </div>
+            </div>
+
+            <ul class="code-list">
+                <li><code>Engine/Graphics/RenderingPipeline/RenderGraph/</code></li>
+                <li><code>Engine/Graphics/Raytracing/</code></li>
+                <li><code>Asset/Shader/Source/Geometry/MeshShader/</code></li>
+                <li><code>Engine/Graphics/D3D12/VideoMemoryTracker/</code></li>
+                <li><code>Engine/Graphics/D3D12/GPUBuffer/MegaBuffer/</code></li>
+                <li><code>Engine/Graphics/FrameCompute/ParticleSimulation/</code></li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             参考資料
+        ======================================== -->
+        <section class="section detail-section" id="reference">
+            <div class="section-heading">
+                <p class="section-heading__number">07</p>
+
+                <div>
+                    <h2>参考資料</h2>
+                    <p>参考にした資料</p>
+                </div>
+            </div>
+
+            <h3 class="content-heading">DirectX 12</h3>
+            <ul class="content-list">
+                <li>書籍 : DirectX12の魔導書、HLSLの魔導書</li>
+                <li>Web : もんしょの巣窟</li>
+                <li><a href="https://qiita.com/kyooooooooma/items/c43dd8b96cc104cb6713" target="_blank" rel="noopener">ベース部分の参考(一通り移した後に改造を重ねました)</a></li>
+                <li>解説シリーズ : DirectX12で1からフレームワーク制作、DirectX12でミクさんを躍らせてみよう</li>
+                <li>AI : ChatGPT</li>
+            </ul>
+            <h3 class="content-heading">レイトレーシング・メッシュシェーダー</h3>
+            <ul class="content-list">
+                <li>レイトレーシング : HLSLの魔導書</li>
+                <li>メッシュシェーダー : ゆっくり寺子屋チャンネル</li>
+            </ul>
+            <h3 class="content-heading">HLSL・レンダリング技術</h3>
+            <ul class="content-list">
+                <li>HLSLの魔導書 : ラジアルブラー、高瀬式ブルーム、レイトレーシング、物理ベースレンダリング、影、ライティング</li>
+                <li><a href="https://www.docswell.com/s/CAPCOM_RandD/ZRXJP2-RE2023#p20" target="_blank" rel="noopener">レンダリングの基礎 (1)</a></li>
+                <li><a href="https://www.docswell.com/s/2191436787/ZENEP7-2023-05-25-230031#p20" target="_blank" rel="noopener">レンダリングの基礎 (2)</a></li>
+                <li><a href="https://www.siliconstudio.co.jp/business/technology/blog/4021/" target="_blank" rel="noopener">コンピュートシェーダーの基礎</a></li>
+                <li><a href="https://www.technicalife.net/pbr-ibl-rendering-2025/" target="_blank" rel="noopener">PBR と IBL</a></li>
+                <li><a href="https://qiita.com/2dgames_jp/items/849d44752fcec8f15136" target="_blank" rel="noopener">放射ブラー</a></li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             ほかの技術
+        ======================================== -->
+        <section class="section detail-section" id="others">
+            <div class="section-heading">
+                <p class="section-heading__number">08</p>
+
+                <div>
+                    <h2>ほかの技術を見る</h2>
+                    <p>自作エンジンの主な技術</p>
+                </div>
+            </div>
+
+            <ul class="item-nav">
+                <li><a href="ECS.html">ECS <span>→</span></a></li>
+                <li><a href="DirectX12.html" aria-current="page">DirectX 12 の描画 <span>表示中</span></a></li>
+                <li><a href="JobSystem.html">ジョブシステム <span>→</span></a></li>
+                <li><a href="AssetManage.html">アセット管理 <span>→</span></a></li>
+                <li><a href="OverallDesign.html">全体の設計 <span>→</span></a></li>
+            </ul>
+
+            <div class="item-nav__back">
+                <a class="button-link" href="../EngineHome.html#pickup"><span>←</span> 自作エンジン紹介へ戻る</a>
+            </div>
+        </section>
+
+    </main>
+
+
+    <!-- ========================================
+         FOOTER
+    ======================================== -->
+    <footer class="site-footer">
+        <a href="#top">ページの先頭へ ↑</a>
+        <p>© 2026 PORTFOLIO</p>
+    </footer>
+
+
+    <!-- ========================================
+         MOBILE MENU
+         スマートフォン用のナビゲーション
+    ======================================== -->
+    <button
+        class="mobile-menu-button"
+        type="button"
+        aria-label="メニューを開く"
+        aria-expanded="false"
+        aria-controls="mobile-menu">
+
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </button>
+
+    <nav
+        class="mobile-menu"
+        id="mobile-menu"
+        aria-label="スマートフォン用メニュー"
+        aria-hidden="true">
+
+        <a href="#overview"><span>01</span> 概要</a>
+        <a href="#movie"><span>02</span> 動作動画</a>
+        <a href="#structure"><span>03</span> 仕組み</a>
+        <a href="#implementation"><span>04</span> 実装</a>
+        <a href="#result"><span>05</span> 成果と計測</a>
+        <a href="#code"><span>06</span> 主なコード</a>
+        <a href="#reference"><span>07</span> 参考資料</a>
+
+    </nav>
+
+</body>
+</html>

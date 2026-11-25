@@ -1,0 +1,272 @@
+/* ========================================
+   ENGINE
+   Pages/Engine/ 以下(エンジン紹介と各技術の詳細)の共通デザイン
+   Detail.css の後に読み込む
+======================================== */
+
+/* 日本語の見出しは字間を詰めすぎない */
+.detail-hero h1 {
+    font-family: inherit;
+    font-size: clamp(2rem, 5.5vw, 3.6rem);
+    letter-spacing: 0.02em;
+    line-height: 1.25;
+}
+
+.section-heading h2 {
+    font-family: inherit;
+    letter-spacing: 0.04em;
+}
+
+.detail-hero__label {
+    font-family: inherit;
+    letter-spacing: 0.12em;
+}
+
+/* ----------------------------------------
+   規模の数字
+---------------------------------------- */
+.engine-stats-section {
+    padding-block: 0;
+}
+
+.engine-stats {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    border-inline: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.engine-stats > div {
+    display: grid;
+    gap: 4px;
+    padding: 22px 16px;
+    border-right: 1px solid var(--color-border);
+}
+
+.engine-stats > div:last-child {
+    border-right: 0;
+}
+
+.engine-stats strong {
+    color: var(--color-accent-dark);
+    font-size: 1.15rem;
+    white-space: nowrap;
+}
+
+.engine-stats span {
+    color: var(--color-muted);
+    font-size: 0.74rem;
+}
+
+/* ----------------------------------------
+   YouTube の埋め込み枠
+   data-youtube に動画 ID か URL を入れると、Script/Video.js が埋め込みを作る
+---------------------------------------- */
+.video-embed {
+    position: relative;
+    display: grid;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    place-items: center;
+    border: 1px solid var(--color-border);
+    background:
+        repeating-linear-gradient(135deg, transparent 0 14px, rgba(255, 255, 255, 0.03) 14px 28px),
+        #1b2228;
+    color: #aab6bd;
+}
+
+.video-embed iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.video-embed__placeholder {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 16px;
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+.video-embed__placeholder::before {
+    content: "";
+    width: 0;
+    height: 0;
+    border-top: 13px solid transparent;
+    border-bottom: 13px solid transparent;
+    border-left: 22px solid currentColor;
+    opacity: 0.7;
+}
+
+.video-embed--main {
+    margin-top: 8px;
+}
+
+/* ----------------------------------------
+   主な技術(エンジン紹介のピックアップ)
+---------------------------------------- */
+.pickup {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: center;
+    gap: clamp(28px, 5vw, 56px);
+    padding-block: 40px;
+    border-top: 1px solid var(--color-border);
+}
+
+.pickup:last-child {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.pickup--flip > :first-child {
+    order: 1;
+}
+
+.pickup__label {
+    margin: 0 0 8px;
+    color: var(--color-accent);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.pickup__title {
+    margin: 0 0 16px;
+    font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.pickup .content-list {
+    margin-bottom: 24px;
+}
+
+/* ----------------------------------------
+   簡単な流れ図(矢印でつないだ箱)
+---------------------------------------- */
+.flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.flow li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.84rem;
+}
+
+.flow li + li::before {
+    content: "→";
+    color: var(--color-accent);
+    font-weight: 700;
+}
+
+.flow span {
+    display: grid;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    line-height: 1.6;
+}
+
+.flow small {
+    color: var(--color-muted);
+    font-size: 0.72rem;
+}
+
+/* ----------------------------------------
+   他の技術へのリンク(各詳細ページの末尾)
+---------------------------------------- */
+.item-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.item-nav a {
+    display: flex;
+    min-height: 64px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1px solid var(--color-border);
+    font-size: 0.86rem;
+    font-weight: 700;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.item-nav a:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent-dark);
+}
+
+.item-nav a[aria-current] {
+    border-color: var(--color-accent);
+    background: var(--color-surface);
+    color: var(--color-muted);
+    pointer-events: none;
+}
+
+.item-nav__back {
+    margin-top: 28px;
+}
+
+@media (max-width: 800px) {
+    .engine-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .engine-stats > div:nth-child(3) {
+        border-right: 0;
+    }
+
+    .engine-stats > div:nth-child(-n + 3) {
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .pickup {
+        grid-template-columns: 1fr;
+        gap: 22px;
+    }
+
+    .pickup--flip > :first-child {
+        order: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .engine-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .engine-stats > div {
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .engine-stats > div:nth-child(3) {
+        border-right: 1px solid var(--color-border);
+    }
+
+    .engine-stats > div:nth-child(even) {
+        border-right: 0;
+    }
+
+    .engine-stats > div:nth-last-child(-n + 2) {
+        border-bottom: 0;
+    }
+}

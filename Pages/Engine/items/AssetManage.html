@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="自作エンジンのアセット管理と読み込みの詳細です。">
+    <title>アセット管理 | 自作エンジン | Portfolio</title>
+
+    <!-- ========================================
+         STYLESHEET
+    ======================================== -->
+    <link rel="stylesheet" href="../../../CSS/Common.css">
+    <link rel="stylesheet" href="../../../CSS/Detail.css">
+    <link rel="stylesheet" href="../../../CSS/Engine.css">
+
+    <!-- ========================================
+         SCRIPT
+    ======================================== -->
+    <script src="../../../Script/Common.js" defer></script>
+    <script src="../../../Script/Video.js" defer></script>
+</head>
+
+<body>
+
+    <!-- ========================================
+         HEADER
+         現在地・このページの項目一覧・HOMEへ戻るリンク
+    ======================================== -->
+    <header class="site-header">
+        <div class="header-location">
+            <a class="header-home" href="../../../index.html"><span>←</span> ホームへ戻る</a>
+            <nav class="header-breadcrumb" aria-label="現在地">
+                <a href="../EngineHome.html">自作エンジン</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">アセット管理</span>
+            </nav>
+        </div>
+
+        <nav class="header-nav" aria-label="このページの項目">
+            <a href="#overview">概要</a>
+            <a href="#movie">動作動画</a>
+            <a href="#structure">仕組み</a>
+            <a href="#implementation">実装</a>
+            <a href="#result">成果と計測</a>
+            <a href="#code">主なコード</a>
+        </nav>
+    </header>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ======================================== -->
+    <main id="top">
+
+        <section class="detail-hero">
+            <a class="detail-back" href="../EngineHome.html#pickup"><span>←</span> 自作エンジン紹介へ戻る</a>
+            <p class="detail-hero__label">自作エンジン / 技術詳細</p>
+            <h1>アセット管理</h1>
+            <p class="detail-hero__text">アセットを GUID で参照し、開発中は編集しやすい JSON、配布では速く読めるバイナリを使い分けます。読み込みでゲームを止めない工夫もしています。</p>
+        </section>
+
+        <!-- ========================================
+             概要
+        ======================================== -->
+        <section class="section detail-section" id="overview">
+            <div class="section-heading">
+                <p class="section-heading__number">01</p>
+
+                <div>
+                    <h2>概要</h2>
+                    <p>アセット管理の全体像</p>
+                </div>
+            </div>
+
+            <div class="prose">
+                <p>モデル、マテリアル、プレハブ、シーンなどのアセットを、ファイルのパスではなく GUID(固有の番号)で参照します。ファイルを移動したり名前を変えたりしても、参照が切れません。</p>
+            </div>
+        </section>
+
+        <!-- ========================================
+             動作動画
+        ======================================== -->
+        <section class="section detail-section" id="movie">
+            <div class="section-heading">
+                <p class="section-heading__number">02</p>
+
+                <div>
+                    <h2>動作動画</h2>
+                    <p>実際に動いている様子</p>
+                </div>
+            </div>
+
+            <!-- data-youtube に YouTube の動画 ID か URL を入れると埋め込まれます -->
+            <div class="video-embed" data-youtube="" data-title="アセット管理の動作動画">
+                <p class="video-embed__placeholder">動画は準備中です</p>
+            </div>
+        </section>
+
+        <!-- ========================================
+             仕組み
+        ======================================== -->
+        <section class="section detail-section" id="structure">
+            <div class="section-heading">
+                <p class="section-heading__number">03</p>
+
+                <div>
+                    <h2>仕組み</h2>
+                    <p>2つの形式</p>
+                </div>
+            </div>
+
+            <h3 class="content-heading">開発から配布までの流れ</h3>
+            <ol class="flow">
+                <li><span>編集用の JSON<small>.oj* / エディターで編集</small></span></li>
+                <li><span>Archive<small>同じ処理で読み書き</small></span></li>
+                <li><span>配布用のバイナリ<small>.ob* / ゲームが読む</small></span></li>
+            </ol>
+            <h3 class="content-heading">ポイント</h3>
+            <ul class="content-list">
+                <li>開発中は人が読める JSON を編集し、配布では読み込みの速いバイナリを使います。</li>
+                <li>同じ <code>Archive</code> の処理で、どちらの形式も読み書きします。形式ごとに保存の処理を書き分けずに済みます。</li>
+                <li>モデルは glTF を tinygltf で読み込み、テクスチャは DirectXTex で扱います。</li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             実装
+        ======================================== -->
+        <section class="section detail-section" id="implementation">
+            <div class="section-heading">
+                <p class="section-heading__number">04</p>
+
+                <div>
+                    <h2>実装</h2>
+                    <p>工夫したところ</p>
+                </div>
+            </div>
+
+            <h3 class="content-heading">参照の仕組み</h3>
+            <ul class="content-list">
+                <li><code>ResourceRef&lt;T&gt;</code> がアセットの中に値として埋まり、GUID からリソースを引きます。</li>
+                <li><code>ResourceManager</code> はこの参照の入口なので、理由のあるシングルトンとして残しました(<a href="OverallDesign.html#coding">全体の設計</a>)。</li>
+            </ul>
+            <h3 class="content-heading">配布用パッケージの書き出し</h3>
+            <ul class="content-list">
+                <li>アセットを GUID とパスの依存からたどって必要なものだけを集め、JSON をバイナリへ変換します。</li>
+                <li>エディターのビルドパネルから書き出せます。</li>
+            </ul>
+            <h3 class="content-heading">読み込みでゲームを止めない</h3>
+            <ul class="content-list">
+                <li>GPU への転送はコピーキューとコンピュートキューへまとめて流し、完了をフェンスで見張ります。</li>
+                <li>モデル1体で数百回の送信(submit)になるのを防ぐ、まとめ送りの仕組みを持っています。</li>
+                <li>シーンはロード画面の裏で先読みと組み立てを行い、落ち着くのを待ってから切り替えます。</li>
+                <li>敵の初出現で 26〜30 ms 止まっていた原因は、エフェクト用の GPU プールをその場で作っていたことでした。先読みで届いた時点で、ロード中に作るようにしました。</li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             成果と計測
+        ======================================== -->
+        <section class="section detail-section" id="result">
+            <div class="section-heading">
+                <p class="section-heading__number">05</p>
+
+                <div>
+                    <h2>成果と計測</h2>
+                    <p>数字で見る</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>項目</th><th>内容</th></tr></thead>
+                    <tbody>
+                        <tr><td>参照の方式</td><td>GUID</td></tr>
+                        <tr><td>形式</td><td>開発中 : JSON(.oj*) / 配布 : バイナリ(.ob*)</td></tr>
+                        <tr><td>配布パッケージの大きさ</td><td>約 1.6 GB</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- 未記入: 読み込み時間や、敵の初出現の停止の改善後の値を追加する場合は上の表に行を足す -->
+        </section>
+
+        <!-- ========================================
+             主なコード
+        ======================================== -->
+        <section class="section detail-section" id="code">
+            <div class="section-heading">
+                <p class="section-heading__number">06</p>
+
+                <div>
+                    <h2>主なコード</h2>
+                    <p>ソースの場所</p>
+                </div>
+            </div>
+
+            <ul class="code-list">
+                <li><code>Engine/Resource/</code></li>
+                <li><code>Engine/Persistence/Archive/</code></li>
+                <li><code>Engine/Scene/SceneManager/</code></li>
+                <li><code>Engine/Graphics/Device/AsyncGPUManager/</code></li>
+                <li><code>Editor/Panel/BuildPanel/</code></li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             ほかの技術
+        ======================================== -->
+        <section class="section detail-section" id="others">
+            <div class="section-heading">
+                <p class="section-heading__number">07</p>
+
+                <div>
+                    <h2>ほかの技術を見る</h2>
+                    <p>自作エンジンの主な技術</p>
+                </div>
+            </div>
+
+            <ul class="item-nav">
+                <li><a href="ECS.html">ECS <span>→</span></a></li>
+                <li><a href="DirectX12.html">DirectX 12 の描画 <span>→</span></a></li>
+                <li><a href="JobSystem.html">ジョブシステム <span>→</span></a></li>
+                <li><a href="AssetManage.html" aria-current="page">アセット管理 <span>表示中</span></a></li>
+                <li><a href="OverallDesign.html">全体の設計 <span>→</span></a></li>
+            </ul>
+
+            <div class="item-nav__back">
+                <a class="button-link" href="../EngineHome.html#pickup"><span>←</span> 自作エンジン紹介へ戻る</a>
+            </div>
+        </section>
+
+    </main>
+
+
+    <!-- ========================================
+         FOOTER
+    ======================================== -->
+    <footer class="site-footer">
+        <a href="#top">ページの先頭へ ↑</a>
+        <p>© 2026 PORTFOLIO</p>
+    </footer>
+
+
+    <!-- ========================================
+         MOBILE MENU
+         スマートフォン用のナビゲーション
+    ======================================== -->
+    <button
+        class="mobile-menu-button"
+        type="button"
+        aria-label="メニューを開く"
+        aria-expanded="false"
+        aria-controls="mobile-menu">
+
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </button>
+
+    <nav
+        class="mobile-menu"
+        id="mobile-menu"
+        aria-label="スマートフォン用メニュー"
+        aria-hidden="true">
+
+        <a href="#overview"><span>01</span> 概要</a>
+        <a href="#movie"><span>02</span> 動作動画</a>
+        <a href="#structure"><span>03</span> 仕組み</a>
+        <a href="#implementation"><span>04</span> 実装</a>
+        <a href="#result"><span>05</span> 成果と計測</a>
+        <a href="#code"><span>06</span> 主なコード</a>
+
+    </nav>
+
+</body>
+</html>

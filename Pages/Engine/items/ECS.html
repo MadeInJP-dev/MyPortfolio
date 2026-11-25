@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="自作エンジンのアーキタイプ型 ECS の詳細です。">
+    <title>ECS | 自作エンジン | Portfolio</title>
+
+    <!-- ========================================
+         STYLESHEET
+    ======================================== -->
+    <link rel="stylesheet" href="../../../CSS/Common.css">
+    <link rel="stylesheet" href="../../../CSS/Detail.css">
+    <link rel="stylesheet" href="../../../CSS/Engine.css">
+
+    <!-- ========================================
+         SCRIPT
+    ======================================== -->
+    <script src="../../../Script/Common.js" defer></script>
+    <script src="../../../Script/Video.js" defer></script>
+</head>
+
+<body>
+
+    <!-- ========================================
+         HEADER
+         現在地・このページの項目一覧・HOMEへ戻るリンク
+    ======================================== -->
+    <header class="site-header">
+        <div class="header-location">
+            <a class="header-home" href="../../../index.html"><span>←</span> ホームへ戻る</a>
+            <nav class="header-breadcrumb" aria-label="現在地">
+                <a href="../EngineHome.html">自作エンジン</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">ECS</span>
+            </nav>
+        </div>
+
+        <nav class="header-nav" aria-label="このページの項目">
+            <a href="#overview">概要</a>
+            <a href="#movie">動作動画</a>
+            <a href="#structure">仕組み</a>
+            <a href="#implementation">実装</a>
+            <a href="#result">成果と計測</a>
+            <a href="#code">主なコード</a>
+            <a href="#reference">参考資料</a>
+        </nav>
+    </header>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ======================================== -->
+    <main id="top">
+
+        <section class="detail-hero">
+            <a class="detail-back" href="../EngineHome.html#pickup"><span>←</span> 自作エンジン紹介へ戻る</a>
+            <p class="detail-hero__label">自作エンジン / 技術詳細</p>
+            <h1>ECS</h1>
+            <p class="detail-hero__text">データの並べ方から、システムの実行順の決定まで自作したアーキタイプ型の ECS です。</p>
+        </section>
+
+        <!-- ========================================
+             概要
+        ======================================== -->
+        <section class="section detail-section" id="overview">
+            <div class="section-heading">
+                <p class="section-heading__number">01</p>
+
+                <div>
+                    <h2>概要</h2>
+                    <p>ECS とは</p>
+                </div>
+            </div>
+
+            <div class="prose">
+                <p>ECS は、ゲーム内のオブジェクトを「データ(コンポーネント)」と「処理(システム)」に分けて扱う仕組みです。このエンジンではコンポーネント 110 種、システム 131 種が動き、ボスを作る最大 4,000 体のボイドもエンティティとして扱います。</p>
+            </div>
+            <div class="prose">
+                <p>魚群のデモでは 70,000 体を 60FPS で動かしています。1体ごとの処理は、座標の更新とボイドの計算だけです。</p>
+            </div>
+        </section>
+
+        <!-- ========================================
+             動作動画
+        ======================================== -->
+        <section class="section detail-section" id="movie">
+            <div class="section-heading">
+                <p class="section-heading__number">02</p>
+
+                <div>
+                    <h2>動作動画</h2>
+                    <p>実際に動いている様子</p>
+                </div>
+            </div>
+
+            <!-- data-youtube に YouTube の動画 ID か URL を入れると埋め込まれます -->
+            <div class="video-embed" data-youtube="" data-title="ECS の動作動画">
+                <p class="video-embed__placeholder">動画は準備中です</p>
+            </div>
+        </section>
+
+        <!-- ========================================
+             仕組み
+        ======================================== -->
+        <section class="section detail-section" id="structure">
+            <div class="section-heading">
+                <p class="section-heading__number">03</p>
+
+                <div>
+                    <h2>仕組み</h2>
+                    <p>データの並べ方</p>
+                </div>
+            </div>
+
+            <div class="detail-split">
+                <figure class="content-figure">
+                    <div class="detail-media"><img src="../../../Images/Engine/ECS.svg" alt="アーキタイプとチャンクの構成図" loading="lazy"></div>
+                    <figcaption>コンポーネントの組み合わせごとにアーキタイプを作り、64 KB のチャンクへ配列で並べます。</figcaption>
+                </figure>
+                <ul class="content-list">
+                    <li>コンポーネントの組み合わせごとに<strong>アーキタイプ</strong>を作ります。</li>
+                    <li>エンティティは固定長 64 KB の<strong>チャンク</strong>へ詰めます。中身は SoA(種類ごとの配列)で、配列の位置はアーキタイプが持ちます。</li>
+                    <li>チャンクは専用のアロケーターから借ります。</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ========================================
+             実装
+        ======================================== -->
+        <section class="section detail-section" id="implementation">
+            <div class="section-heading">
+                <p class="section-heading__number">04</p>
+
+                <div>
+                    <h2>実装</h2>
+                    <p>工夫したところ</p>
+                </div>
+            </div>
+
+            <h3 class="content-heading">クエリを速くする</h3>
+            <ul class="content-list">
+                <li>条件に合うアーキタイプをキャッシュし、新しく増えたアーキタイプだけを照合します。</li>
+            </ul>
+            <h3 class="content-heading">実行順を自動で決める</h3>
+            <ul class="content-list">
+                <li>システムが宣言した読み書きから依存を作り、トポロジカルソートで実行順を決めます。</li>
+                <li><code>After</code> / <code>Before</code> で向きを明示でき、読み書きが往復する場合も扱えます。</li>
+            </ul>
+            <h3 class="content-heading">並列に動かせるかを判定する</h3>
+            <ul class="content-list">
+                <li>同じ型を読み書きしていても、対象のアーキタイプが重ならなければ待ち合わせを省きます。</li>
+                <li>決まった順番は、そのままジョブシステムの依存へつなぎます(<a href="JobSystem.html">ジョブシステム</a>)。</li>
+            </ul>
+            <h3 class="content-heading">見える形にする</h3>
+            <ul class="content-list">
+                <li>ソートの成否、循環、前後が決まっていない組をプロファイラーで確認できます。</li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             成果と計測
+        ======================================== -->
+        <section class="section detail-section" id="result">
+            <div class="section-heading">
+                <p class="section-heading__number">05</p>
+
+                <div>
+                    <h2>成果と計測</h2>
+                    <p>数字で見る</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>項目</th><th>値</th></tr></thead>
+                    <tbody>
+                        <tr><td>コンポーネント</td><td>110 種</td></tr>
+                        <tr><td>システム</td><td>131 種</td></tr>
+                        <tr><td>システムの依存の循環</td><td>全フェーズで 0</td></tr>
+                        <tr><td>チャンクの大きさ</td><td>64 KB</td></tr>
+                        <tr><td>魚群のデモ</td><td>70,000 体で 60FPS</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- 未記入: 更新時間の実測を追加する場合は上の表に行を足す -->
+        </section>
+
+        <!-- ========================================
+             主なコード
+        ======================================== -->
+        <section class="section detail-section" id="code">
+            <div class="section-heading">
+                <p class="section-heading__number">06</p>
+
+                <div>
+                    <h2>主なコード</h2>
+                    <p>ソースの場所</p>
+                </div>
+            </div>
+
+            <ul class="code-list">
+                <li><code>Engine/ECS/</code></li>
+                <li><code>Engine/ECS/System/SystemManager.cpp</code></li>
+                <li><code>Engine/ECS/System/TaskAccess.h</code></li>
+                <li><code>Engine/ECS/Query/QueryCache.h</code></li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             参考資料
+        ======================================== -->
+        <section class="section detail-section" id="reference">
+            <div class="section-heading">
+                <p class="section-heading__number">07</p>
+
+                <div>
+                    <h2>参考資料</h2>
+                    <p>参考にした資料</p>
+                </div>
+            </div>
+
+            <h3 class="content-heading">全体</h3>
+            <ul class="content-list">
+                <li>Unity DOTS を目標に、Unity の ECS の解説動画や Reddit などの掲示板を参考にしました。</li>
+            </ul>
+            <h3 class="content-heading">仕組みと思想</h3>
+            <ul class="content-list">
+                <li><a href="https://zenn.dev/kd_gamegikenblg/articles/4ca7b1ec032329" target="_blank" rel="noopener">ECS の仕組みと思想 (1)</a></li>
+                <li><a href="https://edom18.hateblo.jp/entry/2018/12/16/193928" target="_blank" rel="noopener">ECS の仕組みと思想 (2)</a></li>
+                <li><a href="https://note.com/npaka/n/ne8dadebb93be" target="_blank" rel="noopener">ECS のシリーズ記事</a></li>
+            </ul>
+            <h3 class="content-heading">アーキタイプとチャンク</h3>
+            <ul class="content-list">
+                <li><a href="https://qiita.com/harayuu10/items/e15b02e3b0f3081d729b" target="_blank" rel="noopener">大まかな設計</a></li>
+                <li><a href="https://tsubakit1.hateblo.jp/entry/2018/06/06/015645" target="_blank" rel="noopener">仕様と思想</a></li>
+                <li><a href="https://logicalbeat.co.jp/blog/4032/" target="_blank" rel="noopener">C++ の仕様</a></li>
+            </ul>
+            <h3 class="content-heading">応用</h3>
+            <ul class="content-list">
+                <li><a href="https://zenn.dev/munimaru62o/articles/9a9e3928e2e5e0" target="_blank" rel="noopener">ボイドボスの群衆設計</a></li>
+                <li><a href="https://qiita.com/yumetodo/items/51b0b14f9d04e59faba7" target="_blank" rel="noopener">CPU 側の高速化</a></li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             ほかの技術
+        ======================================== -->
+        <section class="section detail-section" id="others">
+            <div class="section-heading">
+                <p class="section-heading__number">08</p>
+
+                <div>
+                    <h2>ほかの技術を見る</h2>
+                    <p>自作エンジンの主な技術</p>
+                </div>
+            </div>
+
+            <ul class="item-nav">
+                <li><a href="ECS.html" aria-current="page">ECS <span>表示中</span></a></li>
+                <li><a href="DirectX12.html">DirectX 12 の描画 <span>→</span></a></li>
+                <li><a href="JobSystem.html">ジョブシステム <span>→</span></a></li>
+                <li><a href="AssetManage.html">アセット管理 <span>→</span></a></li>
+                <li><a href="OverallDesign.html">全体の設計 <span>→</span></a></li>
+            </ul>
+
+            <div class="item-nav__back">
+                <a class="button-link" href="../EngineHome.html#pickup"><span>←</span> 自作エンジン紹介へ戻る</a>
+            </div>
+        </section>
+
+    </main>
+
+
+    <!-- ========================================
+         FOOTER
+    ======================================== -->
+    <footer class="site-footer">
+        <a href="#top">ページの先頭へ ↑</a>
+        <p>© 2026 PORTFOLIO</p>
+    </footer>
+
+
+    <!-- ========================================
+         MOBILE MENU
+         スマートフォン用のナビゲーション
+    ======================================== -->
+    <button
+        class="mobile-menu-button"
+        type="button"
+        aria-label="メニューを開く"
+        aria-expanded="false"
+        aria-controls="mobile-menu">
+
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </button>
+
+    <nav
+        class="mobile-menu"
+        id="mobile-menu"
+        aria-label="スマートフォン用メニュー"
+        aria-hidden="true">
+
+        <a href="#overview"><span>01</span> 概要</a>
+        <a href="#movie"><span>02</span> 動作動画</a>
+        <a href="#structure"><span>03</span> 仕組み</a>
+        <a href="#implementation"><span>04</span> 実装</a>
+        <a href="#result"><span>05</span> 成果と計測</a>
+        <a href="#code"><span>06</span> 主なコード</a>
+        <a href="#reference"><span>07</span> 参考資料</a>
+
+    </nav>
+
+</body>
+</html>

@@ -381,6 +381,38 @@ button {
     }
 }
 
+/* PCの狭い幅では、メニューボタンを画面下ではなくヘッダー内に置く
+   各テーマのボタン色より優先させるため、セレクターに button を付ける */
+@media (min-width: 701px) and (max-width: 1040px) {
+    button.mobile-menu-button {
+        top: calc((var(--header-height) - 44px) / 2);
+        right: 17px;
+        bottom: auto;
+        width: 44px;
+        height: 44px;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    button.mobile-menu-button span {
+        background: var(--color-text);
+    }
+
+    button.mobile-menu-button:hover span {
+        background: var(--color-accent);
+    }
+
+    .mobile-menu {
+        top: var(--header-height);
+        right: 28px;
+        bottom: auto;
+        max-height: calc(100vh - var(--header-height));
+        overflow-y: auto;
+        transform: translateY(-8px);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     html {
         scroll-behavior: auto;
@@ -405,6 +437,14 @@ button {
 
 .prose p:last-child {
     margin-bottom: 0;
+}
+
+.prose a,
+.content-list a,
+.data-table a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }
 
 .content-heading {

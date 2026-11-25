@@ -27,15 +27,15 @@
     <header class="site-header">
         <div class="header-location">
             <nav class="header-breadcrumb" aria-label="現在地">
-                <span aria-current="page">HOME</span>
+                <span aria-current="page">ホーム</span>
             </nav>
         </div>
 
         <nav class="header-nav" aria-label="このページの項目">
-            <a href="#profile">PROFILE</a>
-            <a href="#projects">PROJECTS</a>
-            <a href="#technical">TECHNICAL</a>
-            <a href="#contact">CONTACT</a>
+            <a href="#profile">プロフィール</a>
+            <a href="#projects">作品紹介</a>
+            <a href="#engine">自作エンジン</a>
+            <a href="#contact">連絡先</a>
         </nav>
     </header>
 
@@ -50,21 +50,21 @@
              ポートフォリオのタイトルとページ内目次
         ======================================== -->
         <section class="intro">
-            <p class="intro__label">GAME PROGRAMMER PORTFOLIO</p>
-            <h1>PORTFOLIO</h1>
+            <p class="intro__label">ゲームプログラマー志望</p>
+            <h1>ポートフォリオ</h1>
             <p class="intro__text">
                 ゲームプログラマーを目指す制作者のポートフォリオ
             </p>
 
             <!-- ページ内目次 -->
             <nav class="contents" aria-label="ページ内目次">
-                <p class="contents__title">CONTENTS</p>
+                <p class="contents__title">目次</p>
 
                 <div class="contents__links">
-                    <a href="#profile"><span>01</span> PROFILE</a>
-                    <a href="#projects"><span>02</span> PROJECTS</a>
-                    <a href="#technical"><span>03</span> TECHNICAL</a>
-                    <a href="#contact"><span>04</span> CONTACT</a>
+                    <a href="#profile"><span>01</span> プロフィール</a>
+                    <a href="#projects"><span>02</span> 作品紹介</a>
+                    <a href="#engine"><span>03</span> 自作エンジン</a>
+                    <a href="#contact"><span>04</span> 連絡先</a>
                 </div>
             </nav>
         </section>
@@ -80,7 +80,7 @@
                 <p class="section-heading__number">01</p>
 
                 <div>
-                    <h2>PROFILE</h2>
+                    <h2>プロフィール</h2>
                     <p>自己紹介</p>
                 </div>
             </div>
@@ -122,8 +122,8 @@
                 <p class="section-heading__number">02</p>
 
                 <div>
-                    <h2>PROJECTS</h2>
-                    <p>作品紹介</p>
+                    <h2>作品紹介</h2>
+                    <p>制作したゲーム</p>
                 </div>
             </div>
 
@@ -136,12 +136,12 @@
                     </a>
 
                     <div class="feature-item__body">
-                        <p class="feature-item__category">MAIN PROJECT / 3D ACTION</p>
+                        <p class="feature-item__category">メイン作品 / 3D アクション</p>
 
                         <h3>VECTOR REIGN</h3>
 
                         <p>
-                            DirectX 12 の自作エンジンで動く、3D 高速メカアクション。エンジン・エディター・ゲームを約1年かけて個人で開発し、4,000 体の群れでできた巨大ボスとの戦いまで遊べる形に仕上げました。
+                            DirectX 12 の自作エンジンで動く、3D 高速メカアクション。エンジン・エディター・ゲームを約1年かけて個人で開発し、4,000 体の群れでできた巨大ボスとの戦いまで遊べる形に仕上げました。ベースと設計は自分で作り、UI の調整などの一部に AI を活用しています。
                         </p>
 
                         <a class="button-link" href="Pages/Projects/VECTOR_REIGN.html">
@@ -158,7 +158,7 @@
                     </a>
 
                     <div class="feature-item__body">
-                        <p class="feature-item__category">MAIN PROJECT / 2.5D</p>
+                        <p class="feature-item__category">メイン作品 / 2.5D アクション</p>
 
                         <h3>デ・キューブ</h3>
 
@@ -173,44 +173,22 @@
 
                 </article>
 
-                <article class="feature-item">
-
-                    <a class="feature-item__image feature-item__image--logo" href="Pages/Projects/GameJam.html">
-                        <img src="Images/Projects/GameJam/TitleLogo.png" alt="ゲームジャム作品のタイトルロゴ" loading="lazy">
-                    </a>
-
-                    <div class="feature-item__body">
-                        <p class="feature-item__category">GAME JAM / TEAM</p>
-
-                        <h3>ゲームジャム作品</h3>
-
-                        <p>
-                            30 秒でハンマーを振り回して街を壊し、稼いだお金でランクを競う破壊スコアアタック。殴った瞬間の気持ちよさを最優先にしたチーム制作です。
-                        </p>
-
-                        <a class="button-link" href="Pages/Projects/GameJam.html">
-                            作品を見る <span>→</span>
-                        </a>
-                    </div>
-
-                </article>
-
             </div>
         </section>
 
 
         <!-- ========================================
-             TECHNICAL
-             エンジン・技術面の紹介
+             ENGINE
+             自作エンジンの紹介ページへの入口
         ======================================== -->
-        <section class="section technical-section" id="technical">
+        <section class="section engine-section" id="engine">
 
             <div class="section-heading">
                 <p class="section-heading__number">03</p>
 
                 <div>
-                    <h2>TECHNICAL</h2>
-                    <p>技術紹介</p>
+                    <h2>自作エンジン</h2>
+                    <p>VECTOR REIGN を動かしている DirectX 12 エンジン</p>
                 </div>
             </div>
 
@@ -218,109 +196,29 @@
 
                 <article class="feature-item">
 
-                    <a class="feature-item__image feature-item__image--technical" href="Pages/Skill/ECS.html">
-                        <img src="Images/Skill/ECS.svg" alt="アーキタイプとチャンクの構成図" loading="lazy">
+                    <a class="feature-item__image feature-item__image--technical" href="Pages/Engine/EngineHome.html">
+                        <img src="Images/Engine/ECS.svg" alt="アーキタイプとチャンクの構成図" loading="lazy">
                     </a>
 
                     <div class="feature-item__body">
-                        <p class="feature-item__category">ENGINE ARCHITECTURE</p>
+                        <p class="feature-item__category">自作エンジン紹介</p>
 
-                        <h3>ECS</h3>
-
-                        <p>
-                            アーキタイプと 64 KB チャンクによるデータ配置、システムの実行順の自動解決、並列化の判定まで自作しました。
-                        </p>
-
-                        <a class="button-link" href="Pages/Skill/ECS.html">
-                            技術詳細を見る <span>→</span>
-                        </a>
-                    </div>
-
-                </article>
-
-                <article class="feature-item">
-
-                    <a class="feature-item__image feature-item__image--technical" href="Pages/Skill/JobSystem.html">
-                        <img src="Images/Skill/JobSystem.svg" alt="ジョブシステムの構成図" loading="lazy">
-                    </a>
-
-                    <div class="feature-item__body">
-                        <p class="feature-item__category">MULTITHREADING</p>
-
-                        <h3>JOB SYSTEM</h3>
+                        <h3>DirectX 12 自作エンジン</h3>
 
                         <p>
-                            ワークスティーリングと依存関係つきジョブで、ECS のシステムやボイドの計算を並列に実行します。
+                            描画は DirectX 12、ゲーム内のオブジェクト管理はアーキタイプ型の ECS、並列処理はジョブシステムで作りました。表現を広げても重くならないよう、処理負荷を意識して約1年かけて開発しています。
                         </p>
 
-                        <a class="button-link" href="Pages/Skill/JobSystem.html">
-                            技術詳細を見る <span>→</span>
-                        </a>
-                    </div>
+                        <ul class="engine-tags" aria-label="主な技術">
+                            <li>ECS</li>
+                            <li>DirectX 12 の描画</li>
+                            <li>ジョブシステム</li>
+                            <li>アセット管理</li>
+                            <li>全体の設計</li>
+                        </ul>
 
-                </article>
-
-                <article class="feature-item">
-
-                    <a class="feature-item__image feature-item__image--technical" href="Pages/Skill/DX12_Rendering.html">
-                        <img src="Images/Skill/DX12_Rendering.svg" alt="レンダーグラフの抜粋図" loading="lazy">
-                    </a>
-
-                    <div class="feature-item__body">
-                        <p class="feature-item__category">GRAPHICS</p>
-
-                        <h3>DIRECTX 12</h3>
-
-                        <p>
-                            レンダーグラフ、メッシュシェーダー、DXR によるレイトレーシング、バインドレス描画を、実際のゲームの画面作りに組み込みました。
-                        </p>
-
-                        <a class="button-link" href="Pages/Skill/DX12_Rendering.html">
-                            技術詳細を見る <span>→</span>
-                        </a>
-                    </div>
-
-                </article>
-
-                <article class="feature-item">
-
-                    <a class="feature-item__image feature-item__image--technical" href="Pages/Skill/Optimization.html">
-                        <img src="Images/Skill/Optimization.svg" alt="計測から修正までの流れと、CPU と VRAM の改善結果" loading="lazy">
-                    </a>
-
-                    <div class="feature-item__body">
-                        <p class="feature-item__category">PERFORMANCE</p>
-
-                        <h3>OPTIMIZATION</h3>
-
-                        <p>
-                            CPU、GPU、VRAM を自作の計測ツールで調べ、原因を数字で特定してから直します。爆風の判定は 27 ms から 0.05 ms、VRAM は 3,858 MiB から 1,697 MiB になりました。
-                        </p>
-
-                        <a class="button-link" href="Pages/Skill/Optimization.html">
-                            技術詳細を見る <span>→</span>
-                        </a>
-                    </div>
-
-                </article>
-
-                <article class="feature-item">
-
-                    <a class="feature-item__image feature-item__image--technical" href="Pages/Skill/Coding.html">
-                        <img src="Images/Skill/Coding.svg" alt="4 層の依存の向きと、シングルトンと層の逆流の削減" loading="lazy">
-                    </a>
-
-                    <div class="feature-item__body">
-                        <p class="feature-item__category">CODE QUALITY</p>
-
-                        <h3>CODING</h3>
-
-                        <p>
-                            規約を約 890 行の文書にまとめ、依存図と監査で確かめながら直しました。シングルトンは 13 個から、理由を説明できる 2 個まで減らしました。
-                        </p>
-
-                        <a class="button-link" href="Pages/Skill/Coding.html">
-                            技術詳細を見る <span>→</span>
+                        <a class="button-link" href="Pages/Engine/EngineHome.html">
+                            エンジン紹介を見る <span>→</span>
                         </a>
                     </div>
 
@@ -340,8 +238,8 @@
                 <p class="section-heading__number">04</p>
 
                 <div>
-                    <h2>CONTACT</h2>
-                    <p>連絡先</p>
+                    <h2>連絡先</h2>
+                    <p>お問い合わせ</p>
                 </div>
             </div>
 
@@ -352,7 +250,7 @@
             <!-- 未記入: 連絡先と外部リンク -->
             <dl class="contact-list">
                 <div>
-                    <dt>EMAIL</dt>
+                    <dt>メール</dt>
                     <dd></dd>
                 </div>
                 <div>
@@ -370,7 +268,7 @@
          FOOTER
     ======================================== -->
     <footer class="site-footer">
-        <a href="#top">BACK TO TOP ↑</a>
+        <a href="#top">ページの先頭へ ↑</a>
         <p>© 2026 PORTFOLIO</p>
     </footer>
 
@@ -398,10 +296,10 @@
         aria-label="スマートフォン用メニュー"
         aria-hidden="true">
 
-        <a href="#profile"><span>01</span> PROFILE</a>
-        <a href="#projects"><span>02</span> PROJECTS</a>
-        <a href="#technical"><span>03</span> TECHNICAL</a>
-        <a href="#contact"><span>04</span> CONTACT</a>
+        <a href="#profile"><span>01</span> プロフィール</a>
+        <a href="#projects"><span>02</span> 作品紹介</a>
+        <a href="#engine"><span>03</span> 自作エンジン</a>
+        <a href="#contact"><span>04</span> 連絡先</a>
 
     </nav>
 

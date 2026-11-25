@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="自作エンジンのジョブシステムの詳細です。">
+    <title>ジョブシステム | 自作エンジン | Portfolio</title>
+
+    <!-- ========================================
+         STYLESHEET
+    ======================================== -->
+    <link rel="stylesheet" href="../../../CSS/Common.css">
+    <link rel="stylesheet" href="../../../CSS/Detail.css">
+    <link rel="stylesheet" href="../../../CSS/Engine.css">
+
+    <!-- ========================================
+         SCRIPT
+    ======================================== -->
+    <script src="../../../Script/Common.js" defer></script>
+    <script src="../../../Script/Video.js" defer></script>
+</head>
+
+<body>
+
+    <!-- ========================================
+         HEADER
+         現在地・このページの項目一覧・HOMEへ戻るリンク
+    ======================================== -->
+    <header class="site-header">
+        <div class="header-location">
+            <a class="header-home" href="../../../index.html"><span>←</span> ホームへ戻る</a>
+            <nav class="header-breadcrumb" aria-label="現在地">
+                <a href="../EngineHome.html">自作エンジン</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">ジョブシステム</span>
+            </nav>
+        </div>
+
+        <nav class="header-nav" aria-label="このページの項目">
+            <a href="#overview">概要</a>
+            <a href="#movie">動作動画</a>
+            <a href="#structure">仕組み</a>
+            <a href="#implementation">実装</a>
+            <a href="#result">成果と計測</a>
+            <a href="#code">主なコード</a>
+            <a href="#reference">参考資料</a>
+        </nav>
+    </header>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ======================================== -->
+    <main id="top">
+
+        <section class="detail-hero">
+            <a class="detail-back" href="../EngineHome.html#pickup"><span>←</span> 自作エンジン紹介へ戻る</a>
+            <p class="detail-hero__label">自作エンジン / 技術詳細</p>
+            <h1>ジョブシステム</h1>
+            <p class="detail-hero__text">ワークスティーリングと依存関係つきのジョブで、処理を複数のスレッドへ分散する自作のジョブシステムです。</p>
+        </section>
+
+        <!-- ========================================
+             概要
+        ======================================== -->
+        <section class="section detail-section" id="overview">
+            <div class="section-heading">
+                <p class="section-heading__number">01</p>
+
+                <div>
+                    <h2>概要</h2>
+                    <p>ジョブシステムとは</p>
+                </div>
+            </div>
+
+            <div class="prose">
+                <p>処理を「ジョブ」という小さな単位に分け、複数のスレッドで同時に実行する仕組みです。ECS のシステムやボイドの計算、非同期の読み込みを支えています。ワーカーの数は、論理スレッド数から 5 を引いた数(最低 1)です。</p>
+            </div>
+        </section>
+
+        <!-- ========================================
+             動作動画
+        ======================================== -->
+        <section class="section detail-section" id="movie">
+            <div class="section-heading">
+                <p class="section-heading__number">02</p>
+
+                <div>
+                    <h2>動作動画</h2>
+                    <p>実際に動いている様子</p>
+                </div>
+            </div>
+
+            <!-- data-youtube に YouTube の動画 ID か URL を入れると埋め込まれます -->
+            <div class="video-embed" data-youtube="" data-title="ジョブシステムの動作動画">
+                <p class="video-embed__placeholder">動画は準備中です</p>
+            </div>
+        </section>
+
+        <!-- ========================================
+             仕組み
+        ======================================== -->
+        <section class="section detail-section" id="structure">
+            <div class="section-heading">
+                <p class="section-heading__number">03</p>
+
+                <div>
+                    <h2>仕組み</h2>
+                    <p>負荷の分け方</p>
+                </div>
+            </div>
+
+            <div class="detail-split">
+                <figure class="content-figure">
+                    <div class="detail-media"><img src="../../../Images/Engine/JobSystem.svg" alt="ジョブシステムの構成図" loading="lazy"></div>
+                    <figcaption>ワーカーごとのキューと、空いたワーカーによるワークスティーリング。</figcaption>
+                </figure>
+                <ul class="content-list">
+                    <li>ワーカーごとにキューを持ち、空いたワーカーがほかのキューから仕事を取る<strong>ワークスティーリング</strong>で負荷を分散します。</li>
+                    <li>先のジョブが終わると自動で流れる<strong>依存関係つきのジョブ</strong>に対応しています。</li>
+                    <li>ジョブの実体は、ワーカーごとのプールをリング状に使い回します。</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ========================================
+             実装
+        ======================================== -->
+        <section class="section detail-section" id="implementation">
+            <div class="section-heading">
+                <p class="section-heading__number">04</p>
+
+                <div>
+                    <h2>実装</h2>
+                    <p>工夫したところ</p>
+                </div>
+            </div>
+
+            <h3 class="content-heading">待ち時間を無駄にしない</h3>
+            <ul class="content-list">
+                <li>待っているスレッドが、短いジョブを代わりに実行します。</li>
+                <li>読み込みのような長い処理はこの対象から外し、待っている側が長く戻れなくなるのを防いでいます。</li>
+            </ul>
+            <h3 class="content-heading">ECS との連携</h3>
+            <ul class="content-list">
+                <li>システムの依存をジョブの依存へつなぎ、チャンクごとにジョブを発行します(<a href="ECS.html">ECS</a>)。</li>
+            </ul>
+            <h3 class="content-heading">ボイドの並列計算</h3>
+            <ul class="content-list">
+                <li>前段のシステムが位置の写しを作り、進む向きの計算はその写しを読むジョブとして並列に走ります。</li>
+                <li>ボイドは小隊に分け、近くの仲間を探す範囲を絞っています。</li>
+            </ul>
+            <h3 class="content-heading">計測</h3>
+            <ul class="content-list">
+                <li>スレッドごとの稼働率と、仕事を取った(スティールした)回数を計測できます。</li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             成果と計測
+        ======================================== -->
+        <section class="section detail-section" id="result">
+            <div class="section-heading">
+                <p class="section-heading__number">05</p>
+
+                <div>
+                    <h2>成果と計測</h2>
+                    <p>数字で見る</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>項目</th><th>値</th></tr></thead>
+                    <tbody>
+                        <tr><td>並列に動かすボスの個体数</td><td>最大 4,000 体</td></tr>
+                        <tr><td>ワーカーの数</td><td>論理スレッド数 − 5(最低 1)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- 未記入: スレッドごとの稼働率、スティール回数、並列化の前後の処理時間を追加する場合は上の表に行を足す -->
+            <div class="prose">
+                <p>動作確認環境 : Intel Core i7-14650HX(論理24スレッド)/ NVIDIA GeForce RTX 5060 Laptop GPU / メモリ 16 GB</p>
+            </div>
+        </section>
+
+        <!-- ========================================
+             主なコード
+        ======================================== -->
+        <section class="section detail-section" id="code">
+            <div class="section-heading">
+                <p class="section-heading__number">06</p>
+
+                <div>
+                    <h2>主なコード</h2>
+                    <p>ソースの場所</p>
+                </div>
+            </div>
+
+            <ul class="code-list">
+                <li><code>Engine/JobSystem/</code></li>
+                <li><code>Engine/JobSystem/Internal/JobWorker/JobWorker.cpp</code></li>
+                <li><code>Engine/JobSystem/Profile/ThreadProfiler.cpp</code></li>
+                <li><code>Application/Systems/Boid/</code></li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             参考資料
+        ======================================== -->
+        <section class="section detail-section" id="reference">
+            <div class="section-heading">
+                <p class="section-heading__number">07</p>
+
+                <div>
+                    <h2>参考資料</h2>
+                    <p>参考にした資料</p>
+                </div>
+            </div>
+
+            <h3 class="content-heading">ワークスティーリング</h3>
+            <ul class="content-list">
+                <li>Molecular Matters「Job System 2.0」(Molecular Musings)の実装を読み込み、ほぼそのままの形で移して作成しました。</li>
+            </ul>
+            <h3 class="content-heading">基礎</h3>
+            <ul class="content-list">
+                <li><a href="https://qiita.com/tsukino_/items/3e7fec9cc3e5a310af61" target="_blank" rel="noopener">初心者向けのジョブシステム解説(以前の作品で最初に作った原型の参考)</a></li>
+                <li><a href="https://dexall.co.jp/articles/?p=2079#i-0" target="_blank" rel="noopener">STL のスレッドの考え方と使い方</a></li>
+            </ul>
+        </section>
+
+        <!-- ========================================
+             ほかの技術
+        ======================================== -->
+        <section class="section detail-section" id="others">
+            <div class="section-heading">
+                <p class="section-heading__number">08</p>
+
+                <div>
+                    <h2>ほかの技術を見る</h2>
+                    <p>自作エンジンの主な技術</p>
+                </div>
+            </div>
+
+            <ul class="item-nav">
+                <li><a href="ECS.html">ECS <span>→</span></a></li>
+                <li><a href="DirectX12.html">DirectX 12 の描画 <span>→</span></a></li>
+                <li><a href="JobSystem.html" aria-current="page">ジョブシステム <span>表示中</span></a></li>
+                <li><a href="AssetManage.html">アセット管理 <span>→</span></a></li>
+                <li><a href="OverallDesign.html">全体の設計 <span>→</span></a></li>
+            </ul>
+
+            <div class="item-nav__back">
+                <a class="button-link" href="../EngineHome.html#pickup"><span>←</span> 自作エンジン紹介へ戻る</a>
+            </div>
+        </section>
+
+    </main>
+
+
+    <!-- ========================================
+         FOOTER
+    ======================================== -->
+    <footer class="site-footer">
+        <a href="#top">ページの先頭へ ↑</a>
+        <p>© 2026 PORTFOLIO</p>
+    </footer>
+
+
+    <!-- ========================================
+         MOBILE MENU
+         スマートフォン用のナビゲーション
+    ======================================== -->
+    <button
+        class="mobile-menu-button"
+        type="button"
+        aria-label="メニューを開く"
+        aria-expanded="false"
+        aria-controls="mobile-menu">
+
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </button>
+
+    <nav
+        class="mobile-menu"
+        id="mobile-menu"
+        aria-label="スマートフォン用メニュー"
+        aria-hidden="true">
+
+        <a href="#overview"><span>01</span> 概要</a>
+        <a href="#movie"><span>02</span> 動作動画</a>
+        <a href="#structure"><span>03</span> 仕組み</a>
+        <a href="#implementation"><span>04</span> 実装</a>
+        <a href="#result"><span>05</span> 成果と計測</a>
+        <a href="#code"><span>06</span> 主なコード</a>
+        <a href="#reference"><span>07</span> 参考資料</a>
+
+    </nav>
+
+</body>
+</html>

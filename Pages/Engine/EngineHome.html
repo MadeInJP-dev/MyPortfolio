@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VECTOR REIGN を動かしている、DirectX 12 の自作エンジンの紹介です。">
+    <title>自作エンジン紹介 | Portfolio</title>
+
+    <!-- ========================================
+         STYLESHEET
+    ======================================== -->
+    <link rel="stylesheet" href="../../CSS/Common.css">
+    <link rel="stylesheet" href="../../CSS/Detail.css">
+    <link rel="stylesheet" href="../../CSS/Engine.css">
+
+    <!-- ========================================
+         SCRIPT
+    ======================================== -->
+    <script src="../../Script/Common.js" defer></script>
+    <script src="../../Script/Video.js" defer></script>
+</head>
+
+<body>
+
+    <!-- ========================================
+         HEADER
+         現在地・このページの項目一覧・HOMEへ戻るリンク
+    ======================================== -->
+    <header class="site-header">
+        <div class="header-location">
+            <a class="header-home" href="../../index.html"><span>←</span> ホームへ戻る</a>
+            <nav class="header-breadcrumb" aria-label="現在地">
+                <a href="../../index.html#engine">ホーム</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">自作エンジン</span>
+            </nav>
+        </div>
+
+        <nav class="header-nav" aria-label="このページの項目">
+            <a href="#overview">概要</a>
+            <a href="#movie">紹介動画</a>
+            <a href="#pickup">主な技術</a>
+            <a href="#next">今後の課題</a>
+        </nav>
+    </header>
+
+
+    <!-- ========================================
+         MAIN CONTENT
+    ======================================== -->
+    <main id="top">
+
+        <section class="detail-hero">
+            <a class="detail-back" href="../../index.html#engine"><span>←</span> ホームへ戻る</a>
+            <p class="detail-hero__label">自作エンジン紹介</p>
+            <h1>DirectX 12 自作エンジン</h1>
+            <p class="detail-hero__text">描画 API は DirectX 12、ゲーム内のオブジェクト管理にはアーキタイプ型の ECS、並列処理にはジョブシステムを採用しました。ゲームの表現を広げても重くならないよう、処理負荷を意識して作っています。</p>
+        </section>
+
+        <section class="section engine-stats-section" aria-label="規模">
+            <div class="engine-stats">
+                <div><strong>約18万行</strong><span>C++ のソース</span></div>
+                <div><strong>約1.1万行</strong><span>HLSL</span></div>
+                <div><strong>131 種</strong><span>ECS のシステム</span></div>
+                <div><strong>43 種</strong><span>描画パス</span></div>
+                <div><strong>最大4,000体</strong><span>ボスの個体数</span></div>
+                <div><strong>約1年</strong><span>開発期間</span></div>
+            </div>
+        </section>
+
+        <!-- ========================================
+             概要
+        ======================================== -->
+        <section class="section detail-section" id="overview">
+            <div class="section-heading">
+                <p class="section-heading__number">01</p>
+
+                <div>
+                    <h2>概要</h2>
+                    <p>エンジンの全体像</p>
+                </div>
+            </div>
+
+            <div class="prose">
+                <p>約1年かけて、エンジン・エディター・ゲーム(VECTOR REIGN)を個人で開発しました。見どころは ECS、DirectX 12 の描画、ジョブシステムの3つです。下の「主な技術」から、それぞれの詳しい説明へ進めます。</p>
+            </div>
+
+            <dl class="detail-meta">
+                <div>
+                    <dt>ECS</dt>
+                    <dd>アーキタイプ型の ECS</dd>
+                </div>
+                <div>
+                    <dt>描画</dt>
+                    <dd>DirectX 12(メッシュシェーダー、GPU パーティクル、レイトレーシング)</dd>
+                </div>
+                <div>
+                    <dt>並列処理</dt>
+                    <dd>ワークスティーリング型のジョブシステム</dd>
+                </div>
+                <div>
+                    <dt>開発期間</dt>
+                    <dd>2025年11月〜2026年11月</dd>
+                </div>
+                <div>
+                    <dt>対応環境</dt>
+                    <dd>Windows 11 / DirectX 12 Ultimate 対応 GPU</dd>
+                </div>
+                <div>
+                    <dt>開発言語</dt>
+                    <dd>C++20 / HLSL</dd>
+                </div>
+                <div>
+                    <dt>開発環境</dt>
+                    <dd>Visual Studio 2026 / Git / PIX</dd>
+                </div>
+            </dl>
+        </section>
+
+        <!-- ========================================
+             紹介動画
+             data-youtube に YouTube の動画 ID か URL を入れると埋め込まれます
+        ======================================== -->
+        <section class="section detail-section" id="movie">
+            <div class="section-heading">
+                <p class="section-heading__number">02</p>
+
+                <div>
+                    <h2>紹介動画</h2>
+                    <p>エンジンで動いている様子</p>
+                </div>
+            </div>
+
+            <div class="video-embed video-embed--main" data-youtube="" data-title="自作エンジンの紹介動画">
+                <p class="video-embed__placeholder">紹介動画は準備中です</p>
+            </div>
+        </section>
+
+        <!-- ========================================
+             主な技術
+             各項目から詳細ページへ進む
+        ======================================== -->
+        <section class="section detail-section" id="pickup">
+            <div class="section-heading">
+                <p class="section-heading__number">03</p>
+
+                <div>
+                    <h2>主な技術</h2>
+                    <p>気になる項目は「詳しく見る」から詳細ページへ</p>
+                </div>
+            </div>
+
+            <!-- ECS -->
+            <article class="pickup">
+                <div class="video-embed" data-youtube="" data-title="ECS の動作動画">
+                    <p class="video-embed__placeholder">動画は準備中です</p>
+                </div>
+
+                <div>
+                    <p class="pickup__label">ECS</p>
+                    <h3 class="pickup__title">70,000 体の魚群を 60FPS で動かす</h3>
+                    <ul class="content-list">
+                        <li>コンポーネントの組み合わせごとに<strong>アーキタイプ</strong>を作り、64 KB のチャンクへ詰めて並べます。</li>
+                        <li>システムの読み書きの宣言から、<strong>実行順と並列化を自動で決めます</strong>。</li>
+                        <li>魚1体ごとの処理は、座標の更新とボイドの計算だけです。</li>
+                    </ul>
+                    <a class="button-link" href="items/ECS.html">ECS を詳しく見る <span>→</span></a>
+                </div>
+            </article>
+
+            <!-- DirectX 12 -->
+            <article class="pickup pickup--flip">
+                <div class="video-embed" data-youtube="" data-title="DirectX 12 の描画の動作動画">
+                    <p class="video-embed__placeholder">動画は準備中です</p>
+                </div>
+
+                <div>
+                    <p class="pickup__label">DirectX 12 の描画</p>
+                    <h3 class="pickup__title">現行世代の GPU 機能をゲームの画面作りに使う</h3>
+                    <ul class="content-list">
+                        <li><strong>レンダーグラフ</strong> : 描画の流れをデータで持ち、シーンごとにパイプラインを切り替えます。</li>
+                        <li><strong>メッシュシェーダー</strong> : 増幅シェーダーで LOD、裏面カリング、視錐台カリングを行います。</li>
+                        <li><strong>レイトレーシング</strong> : 反射、GI、影に使っています。</li>
+                        <li><strong>GPU パーティクル</strong> : フリップブックとプリマルチプライドアルファで立体感を出します。</li>
+                    </ul>
+                    <a class="button-link" href="items/DirectX12.html">描画を詳しく見る <span>→</span></a>
+                </div>
+            </article>
+
+            <!-- ジョブシステム -->
+            <article class="pickup">
+                <div class="video-embed" data-youtube="" data-title="ジョブシステムの動作動画">
+                    <p class="video-embed__placeholder">動画は準備中です</p>
+                </div>
+
+                <div>
+                    <p class="pickup__label">ジョブシステム</p>
+                    <h3 class="pickup__title">空いたスレッドが仕事を取りに行く並列処理</h3>
+                    <ul class="content-list">
+                        <li>ワーカーごとにキューを持ち、<strong>ワークスティーリング</strong>で負荷を分散します。</li>
+                        <li>先のジョブが終わると自動で流れる、<strong>依存関係つきのジョブ</strong>に対応しています。</li>
+                        <li>ECS のシステムやボイドの計算を、チャンクごとのジョブとして並列に実行します。</li>
+                    </ul>
+                    <a class="button-link" href="items/JobSystem.html">ジョブシステムを詳しく見る <span>→</span></a>
+                </div>
+            </article>
+
+            <!-- アセット管理 -->
+            <article class="pickup pickup--flip">
+                <div class="video-embed" data-youtube="" data-title="アセット管理の動作動画">
+                    <p class="video-embed__placeholder">動画は準備中です</p>
+                </div>
+
+                <div>
+                    <p class="pickup__label">アセット管理</p>
+                    <h3 class="pickup__title">ゲームを止めずに読み込むアセットの仕組み</h3>
+                    <ul class="content-list">
+                        <li>アセットを <strong>GUID</strong> で参照するので、ファイルを移動しても参照が切れません。</li>
+                        <li>開発中は JSON を編集し、配布ではバイナリを読みます。</li>
+                        <li>シーンはロード画面の裏で先読みし、GPU への転送もまとめて流します。</li>
+                    </ul>
+                    <a class="button-link" href="items/AssetManage.html">アセット管理を詳しく見る <span>→</span></a>
+                </div>
+            </article>
+
+            <!-- 全体の設計 -->
+            <article class="pickup">
+                <div class="video-embed" data-youtube="" data-title="自作エディターの動作動画">
+                    <p class="video-embed__placeholder">動画は準備中です</p>
+                </div>
+
+                <div>
+                    <p class="pickup__label">全体の設計</p>
+                    <h3 class="pickup__title">約18万行を読みやすく保つ設計と、自作エディター</h3>
+                    <ul class="content-list">
+                        <li>Core、Engine、Application、Editor の<strong>4層</strong>に分け、依存の向きを一方向に保ちます。</li>
+                        <li>ImGui の統合エディターで、シーン、UI、エフェクトを作ります。</li>
+                        <li>プロファイラーで原因を数字で特定してから直します(爆風の判定 27 ms → 0.05 ms)。</li>
+                    </ul>
+                    <a class="button-link" href="items/OverallDesign.html">全体の設計を詳しく見る <span>→</span></a>
+                </div>
+            </article>
+        </section>
+
+        <!-- ========================================
+             今後の課題
+        ======================================== -->
+        <section class="section detail-section" id="next">
+            <div class="section-heading">
+                <p class="section-heading__number">04</p>
+
+                <div>
+                    <h2>今後の課題</h2>
+                    <p>これから改善したいこと</p>
+                </div>
+            </div>
+
+            <ul class="content-list">
+                <li>ボイドの近傍探索は小隊内の総当たりなので、小隊が大きくなったときのために格子分割へ置き換える余地があります。</li>
+                <li>色空間の整理と、空からの環境光(IBL)の追加で画面の質を上げられます。</li>
+                <li>テクスチャの圧縮形式を見直し、VRAM をさらに減らせます。</li>
+                <li>自動テストがなく、確認は手順に沿った手動の起動確認です。</li>
+            </ul>
+
+            <div class="prose item-nav__back">
+                <p>このエンジンで作ったゲームは <a href="../Projects/VECTOR_REIGN.html">VECTOR REIGN</a> で紹介しています。</p>
+            </div>
+        </section>
+
+    </main>
+
+
+    <!-- ========================================
+         FOOTER
+    ======================================== -->
+    <footer class="site-footer">
+        <a href="#top">ページの先頭へ ↑</a>
+        <p>© 2026 PORTFOLIO</p>
+    </footer>
+
+
+    <!-- ========================================
+         MOBILE MENU
+         スマートフォン用のナビゲーション
+    ======================================== -->
+    <button
+        class="mobile-menu-button"
+        type="button"
+        aria-label="メニューを開く"
+        aria-expanded="false"
+        aria-controls="mobile-menu">
+
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </button>
+
+    <nav
+        class="mobile-menu"
+        id="mobile-menu"
+        aria-label="スマートフォン用メニュー"
+        aria-hidden="true">
+
+        <a href="#overview"><span>01</span> 概要</a>
+        <a href="#movie"><span>02</span> 紹介動画</a>
+        <a href="#pickup"><span>03</span> 主な技術</a>
+        <a href="#next"><span>04</span> 今後の課題</a>
+
+    </nav>
+
+</body>
+</html>

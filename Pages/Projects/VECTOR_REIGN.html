@@ -40,6 +40,7 @@
             <a href="#play-movie">PLAY MOVIE</a>
             <a href="#highlights">HIGHLIGHTS</a>
             <a href="#technology">TECHNOLOGY</a>
+            <a href="#ai-usage">AI USAGE</a>
             <a href="#controls">CONTROLS</a>
             <a href="#gallery">GALLERY</a>
             <a href="#next">NEXT</a>
@@ -98,7 +99,7 @@
                 </div>
                 <div>
                     <dt>開発形態</dt>
-                    <dd>個人開発</dd>
+                    <dd>個人開発(一部で AI を活用)</dd>
                 </div>
                 <div>
                     <dt>開発期間</dt>
@@ -230,14 +231,56 @@
                 <table class="data-table">
                     <thead><tr><th>分野</th><th>内容</th><th>詳細</th></tr></thead>
                     <tbody>
-                        <tr><td>エンジン設計</td><td>Core ← Engine ← Application / Editor の4層。依存の向きを一方向に保つ</td><td><a href="../Skill/ECS.html">ECS</a></td></tr>
-                        <tr><td>並列処理</td><td>ワークスティーリングのジョブシステムでボイドの計算などを並列化</td><td><a href="../Skill/JobSystem.html">JOB SYSTEM</a></td></tr>
-                        <tr><td>描画</td><td>レンダーグラフ、メッシュシェーダー、DXR、バインドレス、GPU パーティクル</td><td><a href="../Skill/DX12_Rendering.html">DIRECTX 12</a></td></tr>
-                        <tr><td>計測と改善</td><td>自作プロファイラーで原因を特定。爆風の判定 27 ms → 0.05 ms、VRAM 3,858 MiB → 1,697 MiB</td><td><a href="../Skill/Optimization.html">OPTIMIZATION</a></td></tr>
+                        <tr><td>エンジン設計</td><td>Core ← Engine ← Application / Editor の4層。依存の向きを一方向に保つ</td><td><a href="../Engine/items/OverallDesign.html">全体の設計</a></td></tr>
+                        <tr><td>並列処理</td><td>ワークスティーリングのジョブシステムでボイドの計算などを並列化</td><td><a href="../Engine/items/JobSystem.html">ジョブシステム</a></td></tr>
+                        <tr><td>描画</td><td>レンダーグラフ、メッシュシェーダー、DXR、バインドレス、GPU パーティクル</td><td><a href="../Engine/items/DirectX12.html">DirectX 12 の描画</a></td></tr>
+                        <tr><td>計測と改善</td><td>プロファイラーで原因を特定。爆風の判定 27 ms → 0.05 ms、VRAM 3,858 MiB → 1,697 MiB</td><td><a href="../Engine/items/OverallDesign.html#measure">計測と改善</a></td></tr>
                         <tr><td>物理</td><td>Jolt Physics を組み込み、判定の窓口を自作</td><td></td></tr>
-                        <tr><td>コード品質</td><td>規約の文書化、依存図、監査。シングルトン 13 個 → 2 個</td><td><a href="../Skill/Coding.html">CODING</a></td></tr>
+                        <tr><td>コード品質</td><td>規約の文書化、依存図、監査。シングルトン 13 個 → 2 個</td><td><a href="../Engine/items/OverallDesign.html#coding">コーディング規約</a></td></tr>
                     </tbody>
                 </table>
+            </div>
+        </section>
+
+        <!-- ========================================
+             AI USAGE : AI の使い方
+        ======================================== -->
+        <section class="section detail-section" id="ai-usage">
+            <div class="section-heading">
+                <p class="section-heading__number">05</p>
+
+                <div>
+                    <h2>AI USAGE</h2>
+                    <p>AI の使い方</p>
+                </div>
+            </div>
+
+            <div class="prose">
+                <p>VECTOR REIGN では、開発の一部で Claude Code を使いました。土台と設計は自分で作り、その上の調整やツールの実装を AI に任せています。</p>
+            </div>
+
+            <h3 class="content-heading">分担</h3>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>担当</th><th>内容</th></tr></thead>
+                    <tbody>
+                        <tr><td>自分</td><td>ベースの全体、クラス設計、核となる部分</td></tr>
+                        <tr><td>自分 + AI</td><td>リファクタリング(下記の進め方)</td></tr>
+                        <tr><td>AI</td><td>UI の整理と見た目の調整</td></tr>
+                        <tr><td>AI</td><td>敵の行動パターンの調整</td></tr>
+                        <tr><td>AI</td><td>エディターの値を取得して確認できる、プロファイラーと監視の機能</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="content-heading">リファクタリングでの使い方</h3>
+            <ul class="content-list">
+                <li><strong>精査は AI、修正は自分</strong> : AI で精査した結果をもとに、自分で修正しました。</li>
+                <li><strong>大規模な一括変更</strong> : 規模は大きくても一括で変更できるものは、1か所だけ自分で変更し、それを手本として残りの修正を AI に任せました。</li>
+            </ul>
+
+            <div class="prose">
+                <p>VECTOR REIGN 以外の作品では、AI にコーディングを一切任せていません。作品ごとの使い分けは <a href="../Profile.html#ai">PROFILE</a> に記載しています。</p>
             </div>
         </section>
 
@@ -246,7 +289,7 @@
         ======================================== -->
         <section class="section detail-section" id="controls">
             <div class="section-heading">
-                <p class="section-heading__number">05</p>
+                <p class="section-heading__number">06</p>
 
                 <div>
                     <h2>CONTROLS</h2>
@@ -275,7 +318,7 @@
         ======================================== -->
         <section class="section detail-section" id="gallery">
             <div class="section-heading">
-                <p class="section-heading__number">06</p>
+                <p class="section-heading__number">07</p>
 
                 <div>
                     <h2>GALLERY</h2>
@@ -304,7 +347,7 @@
         ======================================== -->
         <section class="section detail-section" id="next">
             <div class="section-heading">
-                <p class="section-heading__number">07</p>
+                <p class="section-heading__number">08</p>
 
                 <div>
                     <h2>NEXT</h2>
@@ -321,7 +364,7 @@
             <h3 class="content-heading">素材とツール</h3>
             <ul class="content-list">
                 <li>武器の一部のモデルは Meshy で生成し、Blender で調整しました。テクスチャと効果音の一部は Python で生成しました。</li>
-                <li>開発の一部で Claude Code を使用しています。</li>
+                <li>開発の一部で Claude Code を使用しています。分担は <a href="#ai-usage">AI USAGE</a> に記載しています。</li>
             </ul>
         </section>
 
@@ -364,9 +407,10 @@
         <a href="#play-movie"><span>02</span> PLAY MOVIE</a>
         <a href="#highlights"><span>03</span> HIGHLIGHTS</a>
         <a href="#technology"><span>04</span> TECHNOLOGY</a>
-        <a href="#controls"><span>05</span> CONTROLS</a>
-        <a href="#gallery"><span>06</span> GALLERY</a>
-        <a href="#next"><span>07</span> NEXT</a>
+        <a href="#ai-usage"><span>05</span> AI USAGE</a>
+        <a href="#controls"><span>06</span> CONTROLS</a>
+        <a href="#gallery"><span>07</span> GALLERY</a>
+        <a href="#next"><span>08</span> NEXT</a>
 
     </nav>
 
