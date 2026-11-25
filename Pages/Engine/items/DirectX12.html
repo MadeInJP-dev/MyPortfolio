@@ -39,8 +39,10 @@
         <nav class="header-nav" aria-label="このページの項目">
             <a href="#overview">概要</a>
             <a href="#movie">動作動画</a>
-            <a href="#structure">仕組み</a>
-            <a href="#implementation">実装</a>
+            <a href="#structure">基盤</a>
+            <a href="#rendergraph">レンダーグラフ</a>
+            <a href="#gpu">GPU の機能</a>
+            <a href="#vram">VRAM の削減</a>
             <a href="#result">成果と計測</a>
             <a href="#code">主なコード</a>
             <a href="#reference">参考資料</a>
@@ -57,7 +59,7 @@
             <a class="detail-back" href="../EngineHome.html#pickup"><span>←</span> 自作エンジン紹介へ戻る</a>
             <p class="detail-hero__label">自作エンジン / 技術詳細</p>
             <h1>DirectX 12 の描画</h1>
-            <p class="detail-hero__text">レンダーグラフを土台に、メッシュシェーダーやレイトレーシングなど現行世代の GPU 機能をゲームの画面作りへ組み込みました。</p>
+            <p class="detail-hero__text">CPU と GPU を3フレームずらして並行させ、リソースの解放はフェンスで遅らせています。描画の流れはレンダーグラフで持ち、バリアとメモリの共有を自動化しました。</p>
         </section>
 
         <!-- ========================================
@@ -74,13 +76,17 @@
             </div>
 
             <div class="prose">
-                <p>描画の順番を C++ に固定せず、データとして持っています。パスの接続はノードエディターで編集でき、シーンごとに別のパイプラインを割り当てています。</p>
+                <p>DirectX 12 は、ドライバーがしていたメモリ・同期・状態遷移の管理をアプリ側に任せる代わりに、CPU の負荷を減らして細かく制御できる API です。教科書で学んだデバイス・キュー・フェンス・バリア・PSO を土台に、自分のエンジンとして組み直しました。</p>
             </div>
-            <h3 class="content-heading">シーンごとに描画を使い分ける</h3>
-            <ul class="content-list">
-                <li>速さが大切な戦闘シーンは、シャドウマップを中心にしたパイプラインです。GI と反射は外しています。</li>
-                <li>見た目を見せる格納庫は、レイトレーシングの GI・反射とボリュメトリックフォグを使うパイプラインです。</li>
-            </ul>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>シーン</th><th>パイプラインの方針</th></tr></thead>
+                    <tbody>
+                        <tr><td>格納庫(ホーム)</td><td>レイトレーシングの GI・反射、ボリュメトリックフォグ。見た目を重視</td></tr>
+                        <tr><td>戦闘</td><td>シャドウマップが中心で、GI と反射は外す。速さを重視</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
         <!-- ========================================
@@ -103,70 +109,138 @@
         </section>
 
         <!-- ========================================
-             仕組み
+             基盤
         ======================================== -->
         <section class="section detail-section" id="structure">
             <div class="section-heading">
                 <p class="section-heading__number">03</p>
 
                 <div>
-                    <h2>仕組み</h2>
-                    <p>レンダーグラフ</p>
+                    <h2>基盤</h2>
+                    <p>CPU と GPU の同期</p>
+                </div>
+            </div>
+
+            <h3 class="content-heading">3フレームずらして並行させる</h3>
+            <ul class="content-list">
+                <li>フレームごとに Command Allocator とフェンス値を持ち、同じ番号のフレームが前回 GPU で終わったのをフェンスで確かめてから使い回します。</li>
+                <li>バックバッファも3枚です。CPU が GPU の完了を毎回待たずに済みます。</li>
+            </ul>
+            <h3 class="content-heading">リソースの解放を遅らせる</h3>
+            <ul class="content-list">
+                <li>CPU が要らなくなった時点で、GPU はまだそのリソースを使っているかもしれません。</li>
+                <li>解放はフレーム番号ごとのキューに積み、3フレーム後にフェンスで完了を確かめてから実行します。</li>
+                <li>ディスクリプタの席も、使ったフレームのフェンス値と一緒に預け、GPU が通過してから空きへ戻します。</li>
+            </ul>
+            <h3 class="content-heading">バインドレスと PSO</h3>
+            <ul class="content-list">
+                <li>シェーダーモデル 6.6 の <code>ResourceDescriptorHeap[番号]</code> で、シェーダーがヒープを番号で直接引きます。マテリアルはテクスチャの番号を持つだけです。</li>
+                <li>ルートシグネチャは HLSL 側に定義し、PSO は中身のハッシュで共有してハンドルで持ちます。</li>
+                <li>毎フレーム変わる定数は、大きな Upload バッファから 256 バイト単位で切り出して渡します。</li>
+            </ul>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>キュー</th><th>用途</th></tr></thead>
+                    <tbody>
+                        <tr><td>Direct</td><td>毎フレームの描画</td></tr>
+                        <tr><td>Copy</td><td>非同期ロードのアップロード</td></tr>
+                        <tr><td>Compute</td><td>非同期ロード中のメッシュレット関連、BLAS の構築など</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ========================================
+             レンダーグラフ
+        ======================================== -->
+        <section class="section detail-section" id="rendergraph">
+            <div class="section-heading">
+                <p class="section-heading__number">04</p>
+
+                <div>
+                    <h2>レンダーグラフ</h2>
+                    <p>描画の流れをデータで持つ</p>
                 </div>
             </div>
 
             <div class="detail-split">
                 <figure class="content-figure">
                     <div class="detail-media"><img src="../../../Images/Engine/DX12_Rendering.svg" alt="レンダーグラフの抜粋図" loading="lazy"></div>
-                    <figcaption>戦闘シーンのパイプラインの抜粋。実際の接続はもっと多く、影やフォグのパスも含みます。</figcaption>
+                    <figcaption>戦闘シーンのパイプラインの抜粋。配線はノードエディターで編集し、JSON(.ojrpipe)に保存します。</figcaption>
                 </figure>
                 <ul class="content-list">
-                    <li>パスの入出力からトポロジカルソートで<strong>実行順を決めます</strong>。循環があるときはコンパイルを失敗させます。</li>
-                    <li>リソースの状態が変わるところに<strong>バリアを自動で入れます</strong>。</li>
-                    <li>使う期間が重ならないリソースは<strong>1つのヒープで共有</strong>します(メモリエイリアシング)。</li>
-                    <li>前フレームの結果を読む TAA のような構成も、循環にならない形で表せます。</li>
+                    <li>つないだ線からトポロジカルソートで<strong>実行順を決めます</strong>。循環したら、壊れた絵を出さないようにコンパイルを失敗させます。</li>
+                    <li>各パスの入出力の使い方から、状態遷移の<strong>バリアを自動で積みます</strong>。</li>
+                    <li>生存区間が重ならない中間テクスチャは、<strong>1つのヒープの同じ場所</strong>に Placed Resource で置いて共有します(メモリエイリアシング)。</li>
+                    <li>TAA のように前フレームを読む入力は実行順の辺にせず、循環を避けます。</li>
+                    <li>コンパイルは GPU に触らずに最後まで通り、構成が変わったときだけ行います。</li>
                 </ul>
+            </div>
+            <div class="prose">
+                <p>パスを C++ に直接書くと、1つ足すたびにバリアの位置や中間テクスチャの確保を手で直すことになり、すぐ壊れます。中間テクスチャを全部別々に確保すると VRAM も足りません。これを解決するために作りました。</p>
             </div>
         </section>
 
         <!-- ========================================
-             実装
+             GPU の機能
         ======================================== -->
-        <section class="section detail-section" id="implementation">
+        <section class="section detail-section" id="gpu">
             <div class="section-heading">
-                <p class="section-heading__number">04</p>
+                <p class="section-heading__number">05</p>
 
                 <div>
-                    <h2>実装</h2>
-                    <p>工夫したところ</p>
+                    <h2>GPU の機能</h2>
+                    <p>現行世代の機能を使う</p>
                 </div>
             </div>
 
             <h3 class="content-heading">メッシュシェーダーと GPU での LOD 選択</h3>
             <ul class="content-list">
-                <li>すべてのメッシュをメッシュレットに分け、増幅シェーダーで視錐台カリングと裏面(法線コーン)カリングを行います。</li>
-                <li>LOD は画面に占める割合から GPU で選ぶので、影のカスケードごとに違う段を選べます。</li>
+                <li>読み込み時に DirectXMesh でメッシュレットに分け、増幅シェーダーで<strong>視錐台カリング</strong>と<strong>法線コーンカリング</strong>を行います。</li>
+                <li>LOD は画面に占める割合から増幅シェーダーで選びます。影はカスケードごとに違う段を選べます。</li>
             </ul>
-            <h3 class="content-heading">レイトレーシング</h3>
+            <h3 class="content-heading">レイトレーシング(ラスタライズとのハイブリッド)</h3>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>用途</th><th>方式</th><th>理由</th></tr></thead>
+                    <tbody>
+                        <tr><td>GI(間接光)</td><td>DispatchRays</td><td>当たった面のマテリアルを読む。低解像度で計算してから拡大</td></tr>
+                        <tr><td>影</td><td>DispatchRays</td><td>時間・空間のデノイズ付き</td></tr>
+                        <tr><td>反射</td><td>RayQuery</td><td>粗さに応じて周りの間接光へ置き換え</td></tr>
+                        <tr><td>ボリューム影、ボス撃破の光の筋</td><td>RayQuery</td><td>当たったかどうかだけ分かればよいので軽いインラインで</td></tr>
+                    </tbody>
+                </table>
+            </div>
             <ul class="content-list">
-                <li>GI と影は DispatchRays、反射とボリューム影、ボス撃破の光の筋は RayQuery と、用途で使い分けます。</li>
-                <li>時間方向の蓄積と空間フィルターでノイズを消します。GI は低解像度で計算してから拡大します。</li>
-                <li>スキニング後の頂点で BLAS を更新し、静的な BLAS は複数フレームに分けて圧縮します。</li>
-                <li>ボイドは光の筋が出ている間だけ、レイトレーシングの対象に登録します。</li>
+                <li>スキニング後の頂点で BLAS を作り直さずに<strong>更新</strong>し、静的な BLAS は数フレームに分けて圧縮します。</li>
+                <li>ボイド 4,000 体は、光の筋が出ている間だけレイトレーシングの対象に登録します。</li>
             </ul>
-            <h3 class="content-heading">GPU パーティクルとポストエフェクト</h3>
+            <h3 class="content-heading">GPU パーティクルと画面効果</h3>
             <ul class="content-list">
-                <li>発生・更新・描画リストの作成をコンピュートシェーダーで行い、<code>ExecuteIndirect</code> で描画します。</li>
-                <li>フリップブックとプリマルチプライドアルファで、煙や炎に立体感を出します。</li>
-                <li>アセットをまたいで粒を集め、バイトニックソートで遠い順に並べます。</li>
-                <li>PBR のディファード、カスケードシャドウ、ボリュメトリックフォグ、GTAO、TAA、ACES のトーンマップを実装しました。</li>
+                <li>発生・更新・描画リストの作成をコンピュートシェーダーで行い、<code>ExecuteIndirect</code> で描きます。粒の数を CPU へ読み戻しません。</li>
+                <li>全プールの粒を1本の一覧に集め、<strong>バイトニックソート</strong>で遠い順に並べます。種類をまたいだ前後の崩れとちらつきを防ぎます。</li>
+                <li>PBR のディファード、カスケードシャドウ、GTAO、ボリュメトリックフォグ、TAA、ブルーム、ACES のトーンマップを実装しました。</li>
             </ul>
-            <h3 class="content-heading">VRAM を使う分だけ確保する</h3>
+        </section>
+
+        <!-- ========================================
+             VRAM の削減
+        ======================================== -->
+        <section class="section detail-section" id="vram">
+            <div class="section-heading">
+                <p class="section-heading__number">06</p>
+
+                <div>
+                    <h2>VRAM の削減</h2>
+                    <p>測ってから減らす</p>
+                </div>
+            </div>
+
             <ul class="content-list">
-                <li>リソースに用途の札を付けて VRAM を用途別に集計し、エディターで確認できるようにしてから削りました。</li>
-                <li><strong>可変長のメガバッファ</strong> : 予約リソースで、必要な分だけ 4 MB 単位でヒープを割り当てます。空きが続いた領域は、GPU が使い終わったのをフェンスで確かめてから手放します。</li>
-                <li><strong>頂点形式の分割</strong> : 静的な頂点は八面体エンコードの法線・接線で 32 バイト、ボーンの割り当ては 16 バイトの別バッファにしました。</li>
-                <li><strong>BLAS の圧縮</strong> : ビルド後に圧縮サイズを読み戻し、複数フレームに分けて差し替えます。</li>
+                <li><strong>用途別の集計</strong> : リソースを作るときに用途の札を付け、消えたら自動で引きます。エディターで大きい所から削りました。</li>
+                <li><strong>可変長のメガバッファ</strong> : 予約リソースで仮想アドレスだけ大きく取り、必要な分だけ 4 MB 単位で物理メモリを付けます。空きが続いたらフェンスで確かめて外します。</li>
+                <li><strong>頂点形式の分割</strong> : 静的な頂点は 32 バイト(法線・接線を八面体エンコード)、ボーンの割り当ては 16 バイトの別バッファ、スキニング後は 20 バイトにしました。</li>
+                <li><strong>メモリエイリアシング</strong> : レンダーグラフで中間テクスチャのメモリを共有します。</li>
             </ul>
         </section>
 
@@ -175,7 +249,7 @@
         ======================================== -->
         <section class="section detail-section" id="result">
             <div class="section-heading">
-                <p class="section-heading__number">05</p>
+                <p class="section-heading__number">07</p>
 
                 <div>
                     <h2>成果と計測</h2>
@@ -189,14 +263,20 @@
                     <tbody>
                         <tr><td>テストシーンの GPU メモリ</td><td>3,858 MiB → 1,697 MiB</td></tr>
                         <tr><td>描画パスの種類</td><td>43 種(テスト用を含む)</td></tr>
-                        <tr><td>戦闘シーンのパイプライン</td><td>34 パス / 59 接続</td></tr>
+                        <tr><td>CPU と GPU のずらし</td><td>3フレーム(バックバッファ 3 枚)</td></tr>
                     </tbody>
                 </table>
             </div>
-            <!-- 未記入: パスごとの GPU 時間、シーンごとの FPS を追加する場合は上の表に行を足す -->
+            <!-- 未記入: 格納庫と戦闘の各パスの GPU 時間を追加する場合は上の表に行を足す -->
             <div class="prose">
                 <p>動作確認環境 : Intel Core i7-14650HX(論理24スレッド)/ NVIDIA GeForce RTX 5060 Laptop GPU / メモリ 16 GB</p>
             </div>
+            <h3 class="content-heading">今後の改善点</h3>
+            <ul class="content-list">
+                <li>描画のコマンド記録は主にメインスレッドです。スレッドごとにコマンドリストを持てば並列に記録できます。</li>
+                <li>レンダーグラフは Direct キュー1本で実行しています。依存のないコンピュートパスを別キューで並行させる余地があります。</li>
+                <li>出力がどこにも使われないパスを自動で省く仕組みは、まだありません。</li>
+            </ul>
         </section>
 
         <!-- ========================================
@@ -204,7 +284,7 @@
         ======================================== -->
         <section class="section detail-section" id="code">
             <div class="section-heading">
-                <p class="section-heading__number">06</p>
+                <p class="section-heading__number">08</p>
 
                 <div>
                     <h2>主なコード</h2>
@@ -213,12 +293,12 @@
             </div>
 
             <ul class="code-list">
+                <li><code>Engine/Graphics/Device/FrameManager/FrameManager.cpp</code></li>
                 <li><code>Engine/Graphics/RenderingPipeline/RenderGraph/</code></li>
+                <li><code>Engine/Graphics/RenderingPipeline/Resource/ResourceAllocator.cpp</code></li>
                 <li><code>Engine/Graphics/Raytracing/</code></li>
-                <li><code>Asset/Shader/Source/Geometry/MeshShader/</code></li>
-                <li><code>Engine/Graphics/D3D12/VideoMemoryTracker/</code></li>
-                <li><code>Engine/Graphics/D3D12/GPUBuffer/MegaBuffer/</code></li>
                 <li><code>Engine/Graphics/FrameCompute/ParticleSimulation/</code></li>
+                <li><code>Asset/Shader/Source/Geometry/MeshShader/</code></li>
             </ul>
         </section>
 
@@ -227,7 +307,7 @@
         ======================================== -->
         <section class="section detail-section" id="reference">
             <div class="section-heading">
-                <p class="section-heading__number">07</p>
+                <p class="section-heading__number">09</p>
 
                 <div>
                     <h2>参考資料</h2>
@@ -241,7 +321,11 @@
                 <li>Web : もんしょの巣窟</li>
                 <li><a href="https://qiita.com/kyooooooooma/items/c43dd8b96cc104cb6713" target="_blank" rel="noopener">ベース部分の参考(一通り移した後に改造を重ねました)</a></li>
                 <li>解説シリーズ : DirectX12で1からフレームワーク制作、DirectX12でミクさんを躍らせてみよう</li>
-                <li>AI : ChatGPT</li>
+            </ul>
+            <h3 class="content-heading">レンダーグラフ</h3>
+            <ul class="content-list">
+                <li>GDC 2017「FrameGraph: Extensible Rendering Architecture in Frostbite」</li>
+                <li>Unreal Engine 5 の RDG(Render Dependency Graph)</li>
             </ul>
             <h3 class="content-heading">レイトレーシング・メッシュシェーダー</h3>
             <ul class="content-list">
@@ -250,12 +334,10 @@
             </ul>
             <h3 class="content-heading">HLSL・レンダリング技術</h3>
             <ul class="content-list">
-                <li>HLSLの魔導書 : ラジアルブラー、高瀬式ブルーム、レイトレーシング、物理ベースレンダリング、影、ライティング</li>
                 <li><a href="https://www.docswell.com/s/CAPCOM_RandD/ZRXJP2-RE2023#p20" target="_blank" rel="noopener">レンダリングの基礎 (1)</a></li>
                 <li><a href="https://www.docswell.com/s/2191436787/ZENEP7-2023-05-25-230031#p20" target="_blank" rel="noopener">レンダリングの基礎 (2)</a></li>
                 <li><a href="https://www.siliconstudio.co.jp/business/technology/blog/4021/" target="_blank" rel="noopener">コンピュートシェーダーの基礎</a></li>
                 <li><a href="https://www.technicalife.net/pbr-ibl-rendering-2025/" target="_blank" rel="noopener">PBR と IBL</a></li>
-                <li><a href="https://qiita.com/2dgames_jp/items/849d44752fcec8f15136" target="_blank" rel="noopener">放射ブラー</a></li>
             </ul>
         </section>
 
@@ -264,7 +346,7 @@
         ======================================== -->
         <section class="section detail-section" id="others">
             <div class="section-heading">
-                <p class="section-heading__number">08</p>
+                <p class="section-heading__number">10</p>
 
                 <div>
                     <h2>ほかの技術を見る</h2>
@@ -322,11 +404,13 @@
 
         <a href="#overview"><span>01</span> 概要</a>
         <a href="#movie"><span>02</span> 動作動画</a>
-        <a href="#structure"><span>03</span> 仕組み</a>
-        <a href="#implementation"><span>04</span> 実装</a>
-        <a href="#result"><span>05</span> 成果と計測</a>
-        <a href="#code"><span>06</span> 主なコード</a>
-        <a href="#reference"><span>07</span> 参考資料</a>
+        <a href="#structure"><span>03</span> 基盤</a>
+        <a href="#rendergraph"><span>04</span> レンダーグラフ</a>
+        <a href="#gpu"><span>05</span> GPU の機能</a>
+        <a href="#vram"><span>06</span> VRAM の削減</a>
+        <a href="#result"><span>07</span> 成果と計測</a>
+        <a href="#code"><span>08</span> 主なコード</a>
+        <a href="#reference"><span>09</span> 参考資料</a>
 
     </nav>
 

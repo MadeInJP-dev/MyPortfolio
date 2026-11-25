@@ -82,7 +82,9 @@
             </div>
 
             <div class="prose">
-                <p>約1年かけて、エンジン・エディター・ゲーム(VECTOR REIGN)を個人で開発しました。見どころは ECS、DirectX 12 の描画、ジョブシステムの3つです。下の「主な技術」から、それぞれの詳しい説明へ進めます。</p>
+                <p>約1年(約 966 コミット)かけて、エンジン・エディター・ゲーム(VECTOR REIGN)を個人で開発しました。エンジンは Core・Engine・Application・Editor の4層に分け、依存を一方向にしています。</p>
+                <p>1フレームでは、シーンごとの ECS をフェーズ順に回し、各フェーズの中ではシステムの読み書きの宣言から実行順を自動で決めて、ぶつからないものをジョブシステムで並列に流します。描画は、ゲーム側が積んだ描画要求をエンジンが並べ替え、カメラごとのレンダーグラフで実行します。CPU と GPU はフェンスで最大3フレームずらして並行させています。</p>
+                <p>見どころは ECS、DirectX 12 の描画、ジョブシステムの3つです。下の「主な技術」から、それぞれの詳しい説明へ進めます。物理は Jolt Physics、メッシュレットの生成は DirectXMesh、エディターの UI は ImGui を使っています。</p>
             </div>
 
             <dl class="detail-meta">
@@ -92,11 +94,11 @@
                 </div>
                 <div>
                     <dt>描画</dt>
-                    <dd>DirectX 12(メッシュシェーダー、GPU パーティクル、レイトレーシング)</dd>
+                    <dd>DirectX 12(レンダーグラフ、メッシュシェーダー、レイトレーシング、GPU パーティクル)</dd>
                 </div>
                 <div>
                     <dt>並列処理</dt>
-                    <dd>ワークスティーリング型のジョブシステム</dd>
+                    <dd>ワークスティーリング型のジョブシステム(依存つきジョブ)</dd>
                 </div>
                 <div>
                     <dt>開発期間</dt>
@@ -158,11 +160,12 @@
 
                 <div>
                     <p class="pickup__label">ECS</p>
-                    <h3 class="pickup__title">70,000 体の魚群を 60FPS で動かす</h3>
+                    <h3 class="pickup__title">宣言を書くだけで、実行順と並列化が決まる</h3>
                     <ul class="content-list">
-                        <li>コンポーネントの組み合わせごとに<strong>アーキタイプ</strong>を作り、64 KB のチャンクへ詰めて並べます。</li>
-                        <li>システムの読み書きの宣言から、<strong>実行順と並列化を自動で決めます</strong>。</li>
-                        <li>魚1体ごとの処理は、座標の更新とボイドの計算だけです。</li>
+                        <li>同じコンポーネントの組み合わせ(<strong>アーキタイプ</strong>)ごとに、64 KB のチャンクへ SoA で並べます。</li>
+                        <li>システムは読む型と書く型を宣言するだけで、エンジンが依存のグラフを作り、<strong>実行順を自動で決めます</strong>。</li>
+                        <li>型がぶつかっても対象のアーキタイプが重ならなければ、待たずに<strong>並列に流します</strong>。</li>
+                        <li>最終ボスは、最大 4,000 体のエンティティの群れでできています。</li>
                     </ul>
                     <a class="button-link" href="items/ECS.html">ECS を詳しく見る <span>→</span></a>
                 </div>
@@ -176,12 +179,12 @@
 
                 <div>
                     <p class="pickup__label">DirectX 12 の描画</p>
-                    <h3 class="pickup__title">現行世代の GPU 機能をゲームの画面作りに使う</h3>
+                    <h3 class="pickup__title">バリアとメモリの管理を、レンダーグラフで自動化</h3>
                     <ul class="content-list">
-                        <li><strong>レンダーグラフ</strong> : 描画の流れをデータで持ち、シーンごとにパイプラインを切り替えます。</li>
-                        <li><strong>メッシュシェーダー</strong> : 増幅シェーダーで LOD、裏面カリング、視錐台カリングを行います。</li>
-                        <li><strong>レイトレーシング</strong> : 反射、GI、影に使っています。</li>
-                        <li><strong>GPU パーティクル</strong> : フリップブックとプリマルチプライドアルファで立体感を出します。</li>
+                        <li><strong>同期</strong> : CPU と GPU を3フレームずらし、リソースの解放はフェンスで GPU の完了を確かめてから行います。</li>
+                        <li><strong>レンダーグラフ</strong> : 実行順とバリアを自動で決め、中間テクスチャのメモリを共有します。</li>
+                        <li><strong>GPU の機能</strong> : バインドレス、メッシュシェーダー、レイトレーシング、GPU パーティクルを使っています。</li>
+                        <li><strong>VRAM</strong> : 用途別に測ってから削り、3,858 MiB を 1,697 MiB にしました。</li>
                     </ul>
                     <a class="button-link" href="items/DirectX12.html">描画を詳しく見る <span>→</span></a>
                 </div>
@@ -199,7 +202,7 @@
                     <ul class="content-list">
                         <li>ワーカーごとにキューを持ち、<strong>ワークスティーリング</strong>で負荷を分散します。</li>
                         <li>先のジョブが終わると自動で流れる、<strong>依存関係つきのジョブ</strong>に対応しています。</li>
-                        <li>ECS のシステムやボイドの計算を、チャンクごとのジョブとして並列に実行します。</li>
+                        <li>メインスレッドは待っている間、フレーム内で終わる ECS のジョブだけを<strong>手伝います</strong>。長いロードは拾いません。</li>
                     </ul>
                     <a class="button-link" href="items/JobSystem.html">ジョブシステムを詳しく見る <span>→</span></a>
                 </div>
@@ -213,11 +216,11 @@
 
                 <div>
                     <p class="pickup__label">アセット管理</p>
-                    <h3 class="pickup__title">ゲームを止めずに読み込むアセットの仕組み</h3>
+                    <h3 class="pickup__title">GUID で参照し、寿命は読み込んだ場所で決める</h3>
                     <ul class="content-list">
                         <li>アセットを <strong>GUID</strong> で参照するので、ファイルを移動しても参照が切れません。</li>
-                        <li>開発中は JSON を編集し、配布ではバイナリを読みます。</li>
-                        <li>シーンはロード画面の裏で先読みし、GPU への転送もまとめて流します。</li>
+                        <li>開発中は JSON、配布はバイナリを、<strong>同じ処理</strong>で読み書きします。</li>
+                        <li>どのシーンで読んだかを記録し、シーンが消えたら<strong>届かないものをまとめて捨てます</strong>。</li>
                     </ul>
                     <a class="button-link" href="items/AssetManage.html">アセット管理を詳しく見る <span>→</span></a>
                 </div>
@@ -234,8 +237,8 @@
                     <h3 class="pickup__title">約18万行を読みやすく保つ設計と、自作エディター</h3>
                     <ul class="content-list">
                         <li>Core、Engine、Application、Editor の<strong>4層</strong>に分け、依存の向きを一方向に保ちます。</li>
-                        <li>ImGui の統合エディターで、シーン、UI、エフェクトを作ります。</li>
-                        <li>プロファイラーで原因を数字で特定してから直します(爆風の判定 27 ms → 0.05 ms)。</li>
+                        <li>層ごとに静的ライブラリにし、上の層への <code>#include</code> はビルド時に止めます。シングルトンは <code>MainEngine</code> の1つだけです。</li>
+                        <li>ImGui の統合エディターと、カクつきを記録する仕組みを作り、原因を数字で特定してから直します(爆風の判定 27 ms → 0.05 ms)。</li>
                     </ul>
                     <a class="button-link" href="items/OverallDesign.html">全体の設計を詳しく見る <span>→</span></a>
                 </div>
@@ -256,10 +259,11 @@
             </div>
 
             <ul class="content-list">
-                <li>ボイドの近傍探索は小隊内の総当たりなので、小隊が大きくなったときのために格子分割へ置き換える余地があります。</li>
-                <li>色空間の整理と、空からの環境光(IBL)の追加で画面の質を上げられます。</li>
-                <li>テクスチャの圧縮形式を見直し、VRAM をさらに減らせます。</li>
-                <li>自動テストがなく、確認は手順に沿った手動の起動確認です。</li>
+                <li><strong>ECS</strong> : ワーカーから構造変更の予約を積めるようにし、書かれたチャンクだけを回す変更検出を入れたいです。</li>
+                <li><strong>ジョブシステム</strong> : キューをロックフリーにし、ロードと ECS の優先度を分けたいです。</li>
+                <li><strong>描画</strong> : コマンドの記録の並列化と、非同期コンピュートを入れたいです。</li>
+                <li><strong>読み込み</strong> : シーン開始直後の PSO の一斉生成と、BGM の同期読み込みによるカクつきが残っています。</li>
+                <li><strong>ボイド</strong> : 近傍探索は小隊の中の総当たりなので、数を増やすなら一様格子へ置き換えます。</li>
             </ul>
 
             <div class="prose item-nav__back">

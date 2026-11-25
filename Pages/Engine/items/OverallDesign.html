@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="自作エンジンの全体の設計、エディター、コーディング規約、計測と改善の詳細です。">
+    <meta name="description" content="自作エンジンの全体の設計、1フレームの流れ、エディター、コーディング規約、計測と改善の詳細です。">
     <title>全体の設計 | 自作エンジン | Portfolio</title>
 
     <!-- ========================================
@@ -40,10 +40,11 @@
             <a href="#overview">概要</a>
             <a href="#movie">動作動画</a>
             <a href="#structure">層と依存</a>
+            <a href="#frame">1フレームの流れ</a>
             <a href="#editor">自作エディター</a>
             <a href="#coding">コーディング規約</a>
             <a href="#measure">計測と改善</a>
-            <a href="#result">成果と計測</a>
+            <a href="#result">成果</a>
             <a href="#code">主なコード</a>
             <a href="#reference">参考資料</a>
         </nav>
@@ -59,7 +60,7 @@
             <a class="detail-back" href="../EngineHome.html#pickup"><span>←</span> 自作エンジン紹介へ戻る</a>
             <p class="detail-hero__label">自作エンジン / 技術詳細</p>
             <h1>全体の設計</h1>
-            <p class="detail-hero__text">約18万行のエンジンを読みやすく直しやすい状態に保つための設計と、ゲームを作るための自作エディター、計測にもとづく改善の取り組みです。</p>
+            <p class="detail-hero__text">約18万行のエンジンを、Core・Engine・Application・Editor の4層に分けて依存を一方向に保っています。1フレームの流れ、自作エディター、規約、計測にもとづく改善までをまとめました。</p>
         </section>
 
         <!-- ========================================
@@ -76,7 +77,17 @@
             </div>
 
             <div class="prose">
-                <p>動いたら終わりにせず、読みやすく直しやすい状態を保つことを大切にしました。層を分けて依存の向きをそろえ、規約を文書にし、依存図と数字で確かめながら直しています。現在の規模は 1,319 ファイル、約18万行です。</p>
+                <p>最初は1つのプロジェクトで、ゲームとエンジンのコードが互いに参照し合っていました。依存図を作ると循環が多く、1か所直すと広く再ビルドになり、エンジンだけ取り出すこともできませんでした。そこで層を分け、依存の向きをビルドで確かめるようにしました。</p>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>項目</th><th>値</th></tr></thead>
+                    <tbody>
+                        <tr><td>C++</td><td>約18万行 / 1,318 ファイル</td></tr>
+                        <tr><td>HLSL</td><td>約1.1万行 / 101 ファイル</td></tr>
+                        <tr><td>開発期間</td><td>2025年11月〜2026年11月 / 約 966 コミット</td></tr>
+                    </tbody>
+                </table>
             </div>
         </section>
 
@@ -114,16 +125,53 @@
 
             <div class="detail-split">
                 <figure class="content-figure">
-                    <div class="detail-media"><img src="../../../Images/Engine/Coding.svg" alt="4層の依存の向きと、シングルトンと層の逆流の削減" loading="lazy"></div>
-                    <figcaption>依存の向きを一方向に保ちます。</figcaption>
+                    <div class="detail-media"><img src="../../../Images/Engine/Coding.svg" alt="4層の依存の向き" loading="lazy"></div>
+                    <figcaption>依存は下向きだけです。エンジンはゲームを知りません。</figcaption>
                 </figure>
                 <ul class="content-list">
-                    <li><strong>層の分離</strong> : Core、Engine、Application、Editor に分け、下の層から上の層を参照しません。</li>
-                    <li><strong>窓口を通す</strong> : エンジンからは、エディターを <code>IDevTool</code> としてだけ見ます。</li>
-                    <li><strong>持ち主をはっきりさせる</strong> : 多くのマネージャーを持ち主の <code>unique_ptr</code> にし、必要なものは引数のコンテキストで配ります。</li>
-                    <li><strong>PCH の分割</strong> : 層ごとにプリコンパイル済みヘッダーを分けました。</li>
+                    <li><strong>層ごとに静的ライブラリ</strong> : Core(数学・GUID・ログなど)、Engine(描画・ECS・ジョブ・リソース・物理など)、Application(ゲーム)、Editor に分けました。</li>
+                    <li><strong>ビルドで止める</strong> : 上の層を <code>#include</code> すると、ビルド時の検査で止まります。</li>
+                    <li><strong>窓口を通す</strong> : エンジンがエディターの機能を使うときは <code>EditorField</code> を通します。</li>
+                    <li><strong>シングルトンは1つ</strong> : 残したのは <code>MainEngine</code> だけです。ほかは持ち主が <code>unique_ptr</code> で持ち、<code>EngineServices</code> で使う側へ配ります。</li>
                 </ul>
             </div>
+            <div class="prose">
+                <p>どこからでも呼べると、誰がいつ初期化・破棄するかが分からなくなり、終了時に落ちる不具合が実際に出ました。<code>MainEngine</code> は「アプリで1つ、最初に作って最後に消す」と説明できるので残しています。</p>
+            </div>
+        </section>
+
+        <!-- ========================================
+             1フレームの流れ
+        ======================================== -->
+        <section class="section detail-section" id="frame">
+            <div class="section-heading">
+                <p class="section-heading__number">04</p>
+
+                <div>
+                    <h2>1フレームの流れ</h2>
+                    <p>何がどの順に動くか</p>
+                </div>
+            </div>
+
+            <ol class="flow">
+                <li><span>BeginFrame<small>時間・入力・アセットの更新</small></span></li>
+                <li><span>ゲームの更新<small>シーンごとの ECS をフェーズ順に</small></span></li>
+                <li><span>BeginDraw<small>3フレーム前の GPU 完了を待つ</small></span></li>
+                <li><span>描画要求を積む<small>ソートとアップロード</small></span></li>
+                <li><span>レンダーグラフ<small>カメラごとに実行</small></span></li>
+                <li><span>EndDraw<small>提出・Present</small></span></li>
+            </ol>
+            <h3 class="content-heading">ゲームの更新</h3>
+            <ul class="content-list">
+                <li>フレームの最初に、予約された生成・削除・付け外しをまとめて反映します。</li>
+                <li>Input → PreUpdate → Update → 物理の1ステップ → Physics → Animation → Camera → PostUpdate の順にフェーズを回します。</li>
+                <li>各フェーズの中では、システムを依存順に並べ、ぶつからないものをワーカーで並列に走らせます。フェーズの終わりで全部を待ちます。</li>
+            </ul>
+            <h3 class="content-heading">描画</h3>
+            <ul class="content-list">
+                <li>ゲーム側は描画要求を積むだけで、エンジンがソートと GPU へのアップロードを行います。</li>
+                <li>スキニングや BLAS の更新のようにカメラに依存しない処理は1回だけ行い、カメラごとにレンダーグラフを実行します。</li>
+            </ul>
         </section>
 
         <!-- ========================================
@@ -131,7 +179,7 @@
         ======================================== -->
         <section class="section detail-section" id="editor">
             <div class="section-heading">
-                <p class="section-heading__number">04</p>
+                <p class="section-heading__number">05</p>
 
                 <div>
                     <h2>自作エディター</h2>
@@ -139,12 +187,12 @@
                 </div>
             </div>
 
-            <h3 class="content-heading">主な機能</h3>
             <ul class="content-list">
-                <li>ImGui(docking)製の統合エディターで、シーン、UI、エフェクトを作ります。</li>
-                <li>シーンの編集とその場でのプレイ確認、エフェクトエディターとプレハブエディターを備えています。</li>
-                <li>レンダーパイプラインとアニメーターは、共通化したノードエディターで編集します。</li>
-                <li>アセットを依存からたどって集める、配布用パッケージの書き出しも持っています(<a href="AssetManage.html">アセット管理</a>)。</li>
+                <li>ImGui(docking)製で、階層・インスペクター・ギズモ・アセットブラウザを持ちます。同じ exe の中で、エディター・ゲーム・エディターを出したままのプレイを切り替えます。</li>
+                <li>コンポーネントに型情報を書くと、保存と編集の UI が自動で付きます。</li>
+                <li>ノードエディターの土台を共通化し、レンダーパイプラインとアニメーターで使っています。</li>
+                <li>エフェクトエディター、プレハブエディター、プロファイラー(全体・GPU・ECS・スレッド・パーティクル・VRAM)を備えています。</li>
+                <li>値を変えながらその場で確かめられるので、武器やミサイルの避けやすさ、音量の調整の回数を増やせました。</li>
             </ul>
         </section>
 
@@ -153,7 +201,7 @@
         ======================================== -->
         <section class="section detail-section" id="coding">
             <div class="section-heading">
-                <p class="section-heading__number">05</p>
+                <p class="section-heading__number">06</p>
 
                 <div>
                     <h2>コーディング規約</h2>
@@ -162,38 +210,28 @@
             </div>
 
             <div class="prose">
-                <p>命名、所有、依存、コメント、ECS、レンダーグラフなどの決まりを、約 890 行の文書にまとめました。</p>
+                <p>規模が 18 万行を超え、自分でも前に書いたコードの決まりを忘れるようになったので、規約を約 870 行の文書にまとめました。</p>
             </div>
             <div class="table-wrap">
                 <table class="data-table">
-                    <thead><tr><th>項目</th><th>決まり</th><th>ねらい</th></tr></thead>
+                    <thead><tr><th>項目</th><th>決まり</th></tr></thead>
                     <tbody>
-                        <tr><td>命名</td><td>引数 <code>a_</code>、ローカル <code>_</code>、メンバ <code>m_</code>、static <code>s_</code></td><td>変数の種類を名前から読めるようにする</td></tr>
-                        <tr><td>略語</td><td>定着した略語だけを許可リストにする</td><td><code>_texMgr</code> のような独自の省略をなくす</td></tr>
-                        <tr><td>Enum</td><td><code>enum class</code> のみ。型名は <code>E</code> から始める</td><td>書き方をそろえ、Enum だと名前から分かるようにする</td></tr>
-                        <tr><td>Namespace</td><td>ディレクトリと対応させる</td><td>コードの置き場所を名前から分かるようにする</td></tr>
-                        <tr><td>所有権</td><td><code>unique_ptr</code> が基本。<code>shared_ptr</code> は理由があるときだけ</td><td>誰が持ち主かをコードから読めるようにする</td></tr>
-                        <tr><td>依存</td><td>Editor → App → Engine → Core の一方向。逆向きは禁止</td><td>層をまたぐ変更の影響を小さくする</td></tr>
+                        <tr><td>命名</td><td>引数 <code>a_</code>、ローカル <code>_</code>、メンバ <code>m_</code>、static <code>s_</code></td></tr>
+                        <tr><td>所有</td><td><code>unique_ptr</code> が基本。<code>shared_ptr</code> は理由があるときだけ</td></tr>
+                        <tr><td>依存</td><td>Editor / Application → Engine → Core の一方向</td></tr>
+                        <tr><td>そのほか</td><td>include、コメント、クラスの並び、ECS、レンダーグラフの書き方。C スタイルキャストは禁止</td></tr>
                     </tbody>
                 </table>
             </div>
-            <h3 class="content-heading">依存を見える形にしてから直す</h3>
+            <h3 class="content-heading">直し方</h3>
             <ul class="content-list">
-                <li>クラスの依存図を Excalidraw 形式で自動生成し、層の逆流、循環、どこからでも書ける状態の3つを直す対象にしました。</li>
-                <li>1フェーズ1テーマで進め、フェーズの終わりに起動、シーン読み込み、ゲームモードの往復、エディター操作を確認しました。</li>
-                <li>呼び出し回数をコマンドで数え、各フェーズの前後で記録しました。</li>
+                <li>依存図を Python で Excalidraw 形式に自動生成し、循環を見つけて、計画書を書いてから段階的に直しました(計画書は 10 本以上)。</li>
+                <li>規約の監査を行い、適合状況と未修正の項目を記録しています。</li>
+                <li>main は常に動く版にし、作業はブランチで行って、Release で確かめてからマージしています。</li>
             </ul>
-            <h3 class="content-heading">残すものは理由を説明できるようにする</h3>
-            <ul class="content-list">
-                <li>シングルトンをゼロにすることは目的にせず、残す判断の基準を先に決めました。</li>
-                <li><strong>MainEngine</strong> : アプリの入口なので残しました。</li>
-                <li><strong>ResourceManager</strong> : <code>ResourceRef&lt;T&gt;</code> が値としてアセットに埋まり、引数で渡せないので、入口として残しました。</li>
-            </ul>
-            <h3 class="content-heading">AI で精査し、自分で直す</h3>
-            <ul class="content-list">
-                <li>規約に合っているかの精査には AI(Claude Code)を使い、機械的に判定できる項目はスクリプトで全数を数えています。</li>
-                <li>精査した結果をもとに、自分で修正しました。大規模でも一括で変更できるものは、1か所だけ自分で直して手本にし、残りを AI に任せました。</li>
-            </ul>
+            <div class="prose">
+                <p>開発の一部で Claude Code を使っています。方針と設計の判断は自分で行い、入れるコードは読んで理解してから入れました。使い方は <a href="../../Projects/VECTOR_REIGN.html#ai-usage">VECTOR REIGN のページ</a>に記載しています。</p>
+            </div>
         </section>
 
         <!-- ========================================
@@ -201,7 +239,7 @@
         ======================================== -->
         <section class="section detail-section" id="measure">
             <div class="section-heading">
-                <p class="section-heading__number">06</p>
+                <p class="section-heading__number">07</p>
 
                 <div>
                     <h2>計測と改善</h2>
@@ -211,74 +249,50 @@
 
             <div class="detail-split">
                 <figure class="content-figure">
-                    <div class="detail-media"><img src="../../../Images/Engine/Optimization.svg" alt="計測から修正までの流れと、CPU と VRAM の改善結果" loading="lazy"></div>
-                    <figcaption>計測、原因の特定、修正、再計測の流れで直します。</figcaption>
+                    <div class="detail-media"><img src="../../../Images/Engine/Optimization.svg" alt="計測から修正までの流れと、改善結果" loading="lazy"></div>
+                    <figcaption>症状 → 調べる道具を作る → 原因 → 直す → 確かめる、の順で進めます。</figcaption>
                 </figure>
                 <ul class="content-list">
-                    <li><strong>プロファイラー</strong> : 全体、スコープ、GPU、ECS、スレッド、パーティクル、VRAM をエディターで確認できます。</li>
-                    <li><strong>HitchMonitor</strong> : 60FPS を割ったフレームの中身(処理時間、PSO 生成、同期読み込みなど)をファイルへ書き出します。</li>
-                    <li>プロファイラーと監視の機能は AI に作ってもらいました。</li>
+                    <li><strong>HitchMonitor</strong> : 60FPS を割ったフレームだけ、メインスレッドの段・ECS のシステムの時間・出来事(PSO 生成、同期読み込み、剛体の追加など)を書き出します。</li>
+                    <li><strong>HangWatchdog</strong> : フレームが 5 秒進まないと、全スレッドの呼び出し履歴などを書き出します。</li>
                 </ul>
             </div>
-            <h3 class="content-heading">爆風のたびにカクつく</h3>
+            <h3 class="content-heading">爆風の判定 27 ms → 0.05 ms</h3>
             <ul class="content-list">
-                <li><strong>原因</strong> : 判定で機体の判定メッシュの三角形を全部集めていて、機体のそばの爆発が1回 27 ms かかっていました。</li>
-                <li><strong>修正</strong> : 広い範囲の判定でボディを集めてから、ボディごとに最初の当たりで打ち切る形にしました。</li>
+                <li><strong>原因</strong> : 爆風の球の判定が、機体の判定メッシュ(約 4 万枚)の三角形を全部集めていました(2.6 万件)。</li>
+                <li><strong>直し方</strong> : 広い範囲の判定でボディを集め、ボディごとに「1つでも当たれば打ち切る」形に変えました。</li>
             </ul>
-            <h3 class="content-heading">大量の問い合わせを減らす</h3>
+            <h3 class="content-heading">残っている既知のもの</h3>
             <ul class="content-list">
-                <li>判定対象がない問い合わせは Jolt Physics へ行かずに返し、ボイドの大量の問い合わせを省いています。</li>
+                <li>シーン開始直後の PSO の一斉生成(ボリュメトリックフォグで 45 ms)</li>
+                <li>BGM の同期読み込み(15〜34 ms)</li>
             </ul>
-            <h3 class="content-heading">カクつきの記録の例</h3>
-            <div class="prose">
-                <p>HitchMonitor の実際の記録です。ホーム画面で 506.9 ms かかったフレームについて、何に時間を使ったかが分かります。</p>
-            </div>
-            <div class="table-wrap">
-                <table class="data-table">
-                    <thead><tr><th>分類</th><th>内容</th><th>時間</th></tr></thead>
-                    <tbody>
-                        <tr><td>段</td><td>フレーム全体</td><td>506.9 ms</td></tr>
-                        <tr><td>段</td><td>RGDraw</td><td>469.45 ms</td></tr>
-                        <tr><td>出来事</td><td>[PSO] RayReflectionCS</td><td>27.21 ms</td></tr>
-                        <tr><td>出来事</td><td>[Load] BGM の wav ファイル</td><td>24.65 ms</td></tr>
-                        <tr><td>出来事</td><td>[PSO] RayVolumeShadowCS</td><td>18.60 ms</td></tr>
-                    </tbody>
-                </table>
-            </div>
         </section>
 
         <!-- ========================================
-             成果と計測
+             成果
         ======================================== -->
         <section class="section detail-section" id="result">
             <div class="section-heading">
-                <p class="section-heading__number">07</p>
+                <p class="section-heading__number">08</p>
 
                 <div>
-                    <h2>成果と計測</h2>
+                    <h2>成果</h2>
                     <p>数字で見る</p>
                 </div>
             </div>
 
             <div class="table-wrap">
                 <table class="data-table">
-                    <thead><tr><th>項目</th><th>修正前</th><th>修正後</th></tr></thead>
+                    <thead><tr><th>項目</th><th>値</th></tr></thead>
                     <tbody>
-                        <tr><td>機体のそばの爆風判定(1回)</td><td>27 ms</td><td>0.05 ms</td></tr>
-                        <tr><td>シングルトンの数</td><td>13</td><td>2</td></tr>
-                        <tr><td>シングルトンの呼び出し回数</td><td>629</td><td>77</td></tr>
-                        <tr><td>シングルトンを呼ぶファイル数</td><td>142</td><td>27</td></tr>
-                        <tr><td>層の逆流(ファイル数)</td><td>13</td><td>0</td></tr>
-                        <tr><td>D3D12 層の循環</td><td>1 組</td><td>0 組</td></tr>
-                        <tr><td>監査の Critical</td><td>18</td><td>0</td></tr>
-                        <tr><td>監査の High</td><td>439</td><td>23</td></tr>
-                        <tr><td>理由のない <code>shared_ptr</code></td><td>35</td><td>0</td></tr>
-                        <tr><td>独自の略語</td><td>60</td><td>0</td></tr>
+                        <tr><td>爆風の判定(1回)</td><td>27 ms → 0.05 ms</td></tr>
+                        <tr><td>敵の初出現の停止</td><td>26〜30 ms → ロード中に先に作って解消</td></tr>
+                        <tr><td>テストシーンの GPU メモリ</td><td>3,858 MiB → 1,697 MiB</td></tr>
+                        <tr><td>シングルトン</td><td>MainEngine の1つだけ</td></tr>
+                        <tr><td>上向きの include</td><td>ビルド時の検査で止める</td></tr>
                     </tbody>
                 </table>
-            </div>
-            <div class="prose">
-                <p>シングルトンと循環は 2026年9月10日から10月9日まで、それ以外は 2026年10月の監査の修正前後の数字です。</p>
             </div>
             <div class="prose">
                 <p>動作確認環境 : Intel Core i7-14650HX(論理24スレッド)/ NVIDIA GeForce RTX 5060 Laptop GPU / メモリ 16 GB</p>
@@ -290,7 +304,7 @@
         ======================================== -->
         <section class="section detail-section" id="code">
             <div class="section-heading">
-                <p class="section-heading__number">08</p>
+                <p class="section-heading__number">09</p>
 
                 <div>
                     <h2>主なコード</h2>
@@ -299,14 +313,13 @@
             </div>
 
             <ul class="code-list">
+                <li><code>Engine/MainEngine.cpp</code></li>
+                <li><code>Application/App.cpp</code></li>
+                <li><code>BaseProject.props(層の include の検査)</code></li>
                 <li><code>環境/Docs/CodingStandards.md</code></li>
                 <li><code>環境/Docs/CodingRulesAudit.md</code></li>
-                <li><code>環境/DependenceView/</code></li>
-                <li><code>Source/Core/CorePCH.h ほか、層ごとの PCH</code></li>
                 <li><code>Editor/</code></li>
-                <li><code>Editor/Panel/ProfilerPanel/</code></li>
                 <li><code>Engine/Time/HitchMonitor/</code></li>
-                <li><code>Engine/Physics/PhysicsWorld.cpp</code></li>
             </ul>
         </section>
 
@@ -315,7 +328,7 @@
         ======================================== -->
         <section class="section detail-section" id="reference">
             <div class="section-heading">
-                <p class="section-heading__number">09</p>
+                <p class="section-heading__number">10</p>
 
                 <div>
                     <h2>参考資料</h2>
@@ -336,7 +349,7 @@
         ======================================== -->
         <section class="section detail-section" id="others">
             <div class="section-heading">
-                <p class="section-heading__number">10</p>
+                <p class="section-heading__number">11</p>
 
                 <div>
                     <h2>ほかの技術を見る</h2>
@@ -395,12 +408,13 @@
         <a href="#overview"><span>01</span> 概要</a>
         <a href="#movie"><span>02</span> 動作動画</a>
         <a href="#structure"><span>03</span> 層と依存</a>
-        <a href="#editor"><span>04</span> 自作エディター</a>
-        <a href="#coding"><span>05</span> コーディング規約</a>
-        <a href="#measure"><span>06</span> 計測と改善</a>
-        <a href="#result"><span>07</span> 成果と計測</a>
-        <a href="#code"><span>08</span> 主なコード</a>
-        <a href="#reference"><span>09</span> 参考資料</a>
+        <a href="#frame"><span>04</span> 1フレームの流れ</a>
+        <a href="#editor"><span>05</span> 自作エディター</a>
+        <a href="#coding"><span>06</span> コーディング規約</a>
+        <a href="#measure"><span>07</span> 計測と改善</a>
+        <a href="#result"><span>08</span> 成果</a>
+        <a href="#code"><span>09</span> 主なコード</a>
+        <a href="#reference"><span>10</span> 参考資料</a>
 
     </nav>
 

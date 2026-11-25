@@ -41,7 +41,8 @@
             <a href="#movie">動作動画</a>
             <a href="#structure">仕組み</a>
             <a href="#implementation">実装</a>
-            <a href="#result">成果と計測</a>
+            <a href="#bugs">不具合と直し方</a>
+            <a href="#result">成果と今後</a>
             <a href="#code">主なコード</a>
             <a href="#reference">参考資料</a>
         </nav>
@@ -57,7 +58,7 @@
             <a class="detail-back" href="../EngineHome.html#pickup"><span>←</span> 自作エンジン紹介へ戻る</a>
             <p class="detail-hero__label">自作エンジン / 技術詳細</p>
             <h1>ジョブシステム</h1>
-            <p class="detail-hero__text">ワークスティーリングと依存関係つきのジョブで、処理を複数のスレッドへ分散する自作のジョブシステムです。</p>
+            <p class="detail-hero__text">ECS を並列に回すための土台です。ワーカーごとのキューとワークスティーリングで負荷を均し、先のジョブが終わると自動で流れる依存つきのジョブに対応しています。</p>
         </section>
 
         <!-- ========================================
@@ -74,7 +75,19 @@
             </div>
 
             <div class="prose">
-                <p>処理を「ジョブ」という小さな単位に分け、複数のスレッドで同時に実行する仕組みです。ECS のシステムやボイドの計算、非同期の読み込みを支えています。ワーカーの数は、論理スレッド数から 5 を引いた数(最低 1)です。</p>
+                <p>処理の小さな塊(ジョブ)をキューに積むと、あらかじめ立ち上げておいたワーカースレッドが取り出して実行する仕組みです。単なるスレッドプールに加えて、ジョブ同士の依存、完了待ち、負荷の偏りの解消を持っています。</p>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>使い道</th><th>ジョブの性質</th></tr></thead>
+                    <tbody>
+                        <tr><td>ECS のシステムの並列実行</td><td>フレーム内で終わる短いジョブ</td></tr>
+                        <tr><td>アセットの非同期ロード</td><td>ジョブの中からジョブを積む、長いジョブ</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="prose">
+                <p>この2つが同時に走ることが、設計を難しくしたところです。ワーカーの数は論理コア数から 5 を引いた数(最低 1)で、メインスレッドや物理、OS のスレッドと取り合わないよう余裕を取りました。</p>
             </div>
         </section>
 
@@ -116,11 +129,17 @@
                     <figcaption>ワーカーごとのキューと、空いたワーカーによるワークスティーリング。</figcaption>
                 </figure>
                 <ul class="content-list">
-                    <li>ワーカーごとにキューを持ち、空いたワーカーがほかのキューから仕事を取る<strong>ワークスティーリング</strong>で負荷を分散します。</li>
-                    <li>先のジョブが終わると自動で流れる<strong>依存関係つきのジョブ</strong>に対応しています。</li>
-                    <li>ジョブの実体は、ワーカーごとのプールをリング状に使い回します。</li>
+                    <li>ワーカーごとに自分のキューを持ち、空になったら他のキューから盗みます(<strong>ワークスティーリング</strong>)。全員で1本のキューを取り合うより、ロックの取り合いが減ります。</li>
+                    <li>自分のキューは<strong>後ろから</strong>取り(直前のデータがキャッシュに残っている)、盗むときは<strong>前から</strong>取ります。</li>
+                    <li>ジョブの実体は、ワーカーごとに 4,096 個のリングで使い回します。</li>
                 </ul>
             </div>
+            <h3 class="content-heading">依存つきのジョブ</h3>
+            <ul class="content-list">
+                <li>各ジョブが「あと何個待つか」の数と、「自分が終わったら知らせる後続の一覧」を持ちます。</li>
+                <li>終わったジョブが後続の数を atomic に減らし、<strong>0 にしたスレッドだけ</strong>がキューへ積みます。二重に積まれることはありません。</li>
+                <li>後続の登録と完了の印付けを同じミューテックスの下で行い、登録した瞬間に先のジョブが終わるすれ違いを防ぎます。</li>
+            </ul>
         </section>
 
         <!-- ========================================
@@ -132,40 +151,73 @@
 
                 <div>
                     <h2>実装</h2>
-                    <p>工夫したところ</p>
+                    <p>待ち方の工夫</p>
                 </div>
             </div>
 
-            <h3 class="content-heading">待ち時間を無駄にしない</h3>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>待ち方</th><th>待つもの</th><th>使い所</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>WaitForAll</code></td><td>積まれた全部のジョブ</td><td>ロードも含むので、フレーム内の同期には使わない</td></tr>
+                        <tr><td><code>WaitFor</code></td><td>指定したジョブ1件</td><td>ECS のフェーズの終わり</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <h3 class="content-heading">待っている間に手伝う</h3>
             <ul class="content-list">
-                <li>待っているスレッドが、短いジョブを代わりに実行します。</li>
-                <li>読み込みのような長い処理はこの対象から外し、待っている側が長く戻れなくなるのを防いでいます。</li>
+                <li>メインスレッドが待っている間、そのコアが遊ばないよう、キューのジョブを自分で実行します。</li>
+                <li>ただしロードのような長いジョブを拾うとフレームが止まるので、ECS のジョブにだけ「手伝ってよい」印を付け、待っている側はその印のジョブだけを拾います。</li>
+                <li>完了の印と「待っている人数」は互いに逆の順で読み書きするので、<code>seq_cst</code> にして起こし損ねを防いでいます。</li>
             </ul>
             <h3 class="content-heading">ECS との連携</h3>
             <ul class="content-list">
-                <li>システムの依存をジョブの依存へつなぎ、チャンクごとにジョブを発行します(<a href="ECS.html">ECS</a>)。</li>
-            </ul>
-            <h3 class="content-heading">ボイドの並列計算</h3>
-            <ul class="content-list">
-                <li>前段のシステムが位置の写しを作り、進む向きの計算はその写しを読むジョブとして並列に走ります。</li>
-                <li>ボイドは小隊に分け、近くの仲間を探す範囲を絞っています。</li>
-            </ul>
-            <h3 class="content-heading">計測</h3>
-            <ul class="content-list">
-                <li>スレッドごとの稼働率と、仕事を取った(スティールした)回数を計測できます。</li>
+                <li>ECS はチャンクのバッチをジョブに積み、それらを待つだけの空の<strong>フェンスジョブ</strong>を作ります。後ろのシステムはこのフェンス1つを待ちます(<a href="ECS.html">ECS</a>)。</li>
+                <li>ボイドは、前段のシステムが位置の写しを作り、進む向きの計算はその写しを読むジョブとして並列に走ります。</li>
             </ul>
         </section>
 
         <!-- ========================================
-             成果と計測
+             不具合と直し方
         ======================================== -->
-        <section class="section detail-section" id="result">
+        <section class="section detail-section" id="bugs">
             <div class="section-heading">
                 <p class="section-heading__number">05</p>
 
                 <div>
-                    <h2>成果と計測</h2>
-                    <p>数字で見る</p>
+                    <h2>不具合と直し方</h2>
+                    <p>開発中に起きたこと</p>
+                </div>
+            </div>
+
+            <div class="prose">
+                <p>開発中に出た不具合を、原因を突き止めて1つずつ直しました。主なものです。</p>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>症状</th><th>原因</th><th>直し方</th></tr></thead>
+                    <tbody>
+                        <tr><td>特定のステージで ECS のデータが壊れて停止</td><td>長いロードジョブの実行中に ECS のジョブが 4,096 個積まれてリングが一周し、実行中のジョブを上書きしていた</td><td>完了したスロットだけを CAS で取るようにした</td></tr>
+                        <tr><td>依存の順番が守られない</td><td>後続の一覧が固定長で、溢れた分を捨てていた</td><td>可変長の配列にした</td></tr>
+                        <tr><td>終了時にスレッドが止まらない</td><td>停止フラグをロックなしで書いて通知し、起こし損ねていた</td><td>待つ側と同じミューテックスの下でフラグを書く</td></tr>
+                        <tr><td>他のワーカーに仕事があるのに寝ている</td><td>ワーカーごとに条件変数を持っていた</td><td>全員で1つの条件変数にし、全体の待ち数で起きる</td></tr>
+                        <tr><td>ロード中にフレームが止まる・カクつく</td><td>フレーム内で全部を待っていた。待つ側が長いジョブを拾っていた</td><td>1件だけ待つ <code>WaitFor</code> と、手伝ってよい印を追加</td></tr>
+                        <tr><td>アセットが欠けているとゲームが落ちる</td><td>ジョブの例外がスレッドの外まで飛んでいた</td><td>ジョブ1件ごとに例外を閉じ込め、後続は必ず流す</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ========================================
+             成果と今後
+        ======================================== -->
+        <section class="section detail-section" id="result">
+            <div class="section-heading">
+                <p class="section-heading__number">06</p>
+
+                <div>
+                    <h2>成果と今後</h2>
+                    <p>数字と改善点</p>
                 </div>
             </div>
 
@@ -173,15 +225,24 @@
                 <table class="data-table">
                     <thead><tr><th>項目</th><th>値</th></tr></thead>
                     <tbody>
+                        <tr><td>コードの規模</td><td>約 1,000 行(計測機能を含む)</td></tr>
+                        <tr><td>ワーカーの数</td><td>論理コア数 − 5(最低 1)</td></tr>
+                        <tr><td>ジョブの置き場</td><td>1ワーカーあたり 4,096 個</td></tr>
                         <tr><td>並列に動かすボスの個体数</td><td>最大 4,000 体</td></tr>
-                        <tr><td>ワーカーの数</td><td>論理スレッド数 − 5(最低 1)</td></tr>
                     </tbody>
                 </table>
             </div>
-            <!-- 未記入: スレッドごとの稼働率、スティール回数、並列化の前後の処理時間を追加する場合は上の表に行を足す -->
+            <!-- 未記入: ボイドのシーンで「ワーカーあり / なし」の ECS の時間を測ったら上の表に行を足す -->
             <div class="prose">
                 <p>動作確認環境 : Intel Core i7-14650HX(論理24スレッド)/ NVIDIA GeForce RTX 5060 Laptop GPU / メモリ 16 GB</p>
             </div>
+            <h3 class="content-heading">今後の改善点</h3>
+            <ul class="content-list">
+                <li>キューはミューテックスと deque です。ロックフリーの両端キュー(Chase-Lev)にすると取り合いが減ります。</li>
+                <li><code>std::function</code> はキャプチャが大きいとヒープ確保が起きます。固定長のバッファに置く形にしたいです。</li>
+                <li>偽共有の対策(<code>alignas(64)</code>)と、ロードと ECS の優先度の分離がまだです。</li>
+                <li>ワーカー数は計測で決めた値ではないので、計測して決め直したいです。</li>
+            </ul>
         </section>
 
         <!-- ========================================
@@ -189,7 +250,7 @@
         ======================================== -->
         <section class="section detail-section" id="code">
             <div class="section-heading">
-                <p class="section-heading__number">06</p>
+                <p class="section-heading__number">07</p>
 
                 <div>
                     <h2>主なコード</h2>
@@ -198,10 +259,11 @@
             </div>
 
             <ul class="code-list">
-                <li><code>Engine/JobSystem/</code></li>
-                <li><code>Engine/JobSystem/Internal/JobWorker/JobWorker.cpp</code></li>
+                <li><code>Engine/JobSystem/JobSystem.cpp</code></li>
+                <li><code>Engine/JobSystem/Core/Job/Job.h</code></li>
+                <li><code>Engine/JobSystem/Internal/JobWorker/</code></li>
+                <li><code>Engine/JobSystem/Internal/JobPool/JobPool.h</code></li>
                 <li><code>Engine/JobSystem/Profile/ThreadProfiler.cpp</code></li>
-                <li><code>Application/Systems/Boid/</code></li>
             </ul>
         </section>
 
@@ -210,7 +272,7 @@
         ======================================== -->
         <section class="section detail-section" id="reference">
             <div class="section-heading">
-                <p class="section-heading__number">07</p>
+                <p class="section-heading__number">08</p>
 
                 <div>
                     <h2>参考資料</h2>
@@ -220,10 +282,12 @@
 
             <h3 class="content-heading">ワークスティーリング</h3>
             <ul class="content-list">
-                <li>Molecular Matters「Job System 2.0」(Molecular Musings)の実装を読み込み、ほぼそのままの形で移して作成しました。</li>
+                <li>Molecular Matters「Job System 2.0: Lock-Free Work Stealing」</li>
+                <li>GDC 2015「Parallelizing the Naughty Dog Engine Using Fibers」</li>
             </ul>
             <h3 class="content-heading">基礎</h3>
             <ul class="content-list">
+                <li>書籍『C++ Concurrency in Action』(条件変数、atomic、メモリオーダー、スレッドプール)</li>
                 <li><a href="https://qiita.com/tsukino_/items/3e7fec9cc3e5a310af61" target="_blank" rel="noopener">初心者向けのジョブシステム解説(以前の作品で最初に作った原型の参考)</a></li>
                 <li><a href="https://dexall.co.jp/articles/?p=2079#i-0" target="_blank" rel="noopener">STL のスレッドの考え方と使い方</a></li>
             </ul>
@@ -234,7 +298,7 @@
         ======================================== -->
         <section class="section detail-section" id="others">
             <div class="section-heading">
-                <p class="section-heading__number">08</p>
+                <p class="section-heading__number">09</p>
 
                 <div>
                     <h2>ほかの技術を見る</h2>
@@ -294,9 +358,10 @@
         <a href="#movie"><span>02</span> 動作動画</a>
         <a href="#structure"><span>03</span> 仕組み</a>
         <a href="#implementation"><span>04</span> 実装</a>
-        <a href="#result"><span>05</span> 成果と計測</a>
-        <a href="#code"><span>06</span> 主なコード</a>
-        <a href="#reference"><span>07</span> 参考資料</a>
+        <a href="#bugs"><span>05</span> 不具合と直し方</a>
+        <a href="#result"><span>06</span> 成果と今後</a>
+        <a href="#code"><span>07</span> 主なコード</a>
+        <a href="#reference"><span>08</span> 参考資料</a>
 
     </nav>
 

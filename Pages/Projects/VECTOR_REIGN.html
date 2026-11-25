@@ -231,14 +231,20 @@
                 <table class="data-table">
                     <thead><tr><th>分野</th><th>内容</th><th>詳細</th></tr></thead>
                     <tbody>
-                        <tr><td>エンジン設計</td><td>Core ← Engine ← Application / Editor の4層。依存の向きを一方向に保つ</td><td><a href="../Engine/items/OverallDesign.html">全体の設計</a></td></tr>
-                        <tr><td>並列処理</td><td>ワークスティーリングのジョブシステムでボイドの計算などを並列化</td><td><a href="../Engine/items/JobSystem.html">ジョブシステム</a></td></tr>
+                        <tr><td>エンジン設計</td><td>Core ← Engine ← Application / Editor の4層を静的ライブラリに分け、上の層への include はビルド時に止める</td><td><a href="../Engine/items/OverallDesign.html">全体の設計</a></td></tr>
+                        <tr><td>ECS</td><td>アーキタイプ型。読み書きの宣言から実行順と並列化を自動で決める。コンポーネント 110 種 / システム 131 種</td><td><a href="../Engine/items/ECS.html">ECS</a></td></tr>
+                        <tr><td>並列処理</td><td>ワークスティーリングと依存つきジョブ。ECS のシステムとアセットの非同期ロードを並列化</td><td><a href="../Engine/items/JobSystem.html">ジョブシステム</a></td></tr>
                         <tr><td>描画</td><td>レンダーグラフ、メッシュシェーダー、DXR、バインドレス、GPU パーティクル</td><td><a href="../Engine/items/DirectX12.html">DirectX 12 の描画</a></td></tr>
                         <tr><td>計測と改善</td><td>プロファイラーで原因を特定。爆風の判定 27 ms → 0.05 ms、VRAM 3,858 MiB → 1,697 MiB</td><td><a href="../Engine/items/OverallDesign.html#measure">計測と改善</a></td></tr>
-                        <tr><td>物理</td><td>Jolt Physics を組み込み、判定の窓口を自作</td><td></td></tr>
-                        <tr><td>コード品質</td><td>規約の文書化、依存図、監査。シングルトン 13 個 → 2 個</td><td><a href="../Engine/items/OverallDesign.html#coding">コーディング規約</a></td></tr>
+                        <tr><td>アセット</td><td>GUID で参照し、開発中は JSON・配布はバイナリ。寿命は読み込んだ場所で決める</td><td><a href="../Engine/items/AssetManage.html">アセット管理</a></td></tr>
+                        <tr><td>物理</td><td>Jolt Physics を組み込み、判定の窓口を自作。判定対象がない問い合わせは Jolt へ行かずに返す</td><td></td></tr>
+                        <tr><td>コード品質</td><td>規約の文書化(約 870 行)、依存図の自動生成、監査。シングルトンは MainEngine の1つだけ</td><td><a href="../Engine/items/OverallDesign.html#coding">コーディング規約</a></td></tr>
                     </tbody>
                 </table>
+            </div>
+
+            <div class="prose">
+                <p>エンジンの全体は <a href="../Engine/EngineHome.html">自作エンジン紹介</a> にまとめています。</p>
             </div>
         </section>
 
@@ -265,7 +271,9 @@
                     <thead><tr><th>担当</th><th>内容</th></tr></thead>
                     <tbody>
                         <tr><td>自分</td><td>ベースの全体、クラス設計、核となる部分</td></tr>
+                        <tr><td>自分 + AI</td><td>計画書づくり(方針は自分で決定。例 : ECS の依存の決め方、アセットの寿命の管理方法)</td></tr>
                         <tr><td>自分 + AI</td><td>リファクタリング(下記の進め方)</td></tr>
+                        <tr><td>自分 + AI</td><td>不具合の調査(ログやダンプを一緒に読み、原因の特定と修正の判断は自分)</td></tr>
                         <tr><td>AI</td><td>UI の整理と見た目の調整</td></tr>
                         <tr><td>AI</td><td>敵の行動パターンの調整</td></tr>
                         <tr><td>AI</td><td>エディターの値を取得して確認できる、プロファイラーと監視の機能</td></tr>
@@ -277,6 +285,13 @@
             <ul class="content-list">
                 <li><strong>精査は AI、修正は自分</strong> : AI で精査した結果をもとに、自分で修正しました。</li>
                 <li><strong>大規模な一括変更</strong> : 規模は大きくても一括で変更できるものは、1か所だけ自分で変更し、それを手本として残りの修正を AI に任せました。</li>
+            </ul>
+
+            <h3 class="content-heading">気をつけたこと</h3>
+            <ul class="content-list">
+                <li>入れるコードは読んで理解してから入れ、分からないところは説明させてから入れました。</li>
+                <li>もっともらしいが間違ったコードが出ることがあるので、計測と動作確認(Release でシーンを何十回も切り替えるなど)は自分で行いました。</li>
+                <li>出てくるコードをそろえるためにも、規約を文書にしました。</li>
             </ul>
 
             <div class="prose">
@@ -357,7 +372,8 @@
 
             <ul class="content-list">
                 <li>ボイドの近傍探索は小隊内の総当たりなので、小隊が大きくなったときのために格子分割へ置き換える余地があります。</li>
-                <li>色空間の整理と、AO・空からの環境光(IBL)の追加で画面の質を上げられます。</li>
+                <li>色空間の整理と、空からの環境光(IBL)の追加で画面の質を上げられます。</li>
+                <li>シーン開始直後の PSO の一斉生成(ボリュメトリックフォグで 45 ms)と、BGM の同期読み込み(15〜34 ms)によるカクつきが残っています。</li>
                 <li>テクスチャの圧縮形式を見直し、VRAM をさらに減らせます。</li>
             </ul>
 

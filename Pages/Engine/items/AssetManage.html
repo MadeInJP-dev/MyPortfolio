@@ -41,7 +41,8 @@
             <a href="#movie">動作動画</a>
             <a href="#structure">仕組み</a>
             <a href="#implementation">実装</a>
-            <a href="#result">成果と計測</a>
+            <a href="#bugs">不具合と直し方</a>
+            <a href="#result">成果</a>
             <a href="#code">主なコード</a>
         </nav>
     </header>
@@ -56,7 +57,7 @@
             <a class="detail-back" href="../EngineHome.html#pickup"><span>←</span> 自作エンジン紹介へ戻る</a>
             <p class="detail-hero__label">自作エンジン / 技術詳細</p>
             <h1>アセット管理</h1>
-            <p class="detail-hero__text">アセットを GUID で参照し、開発中は編集しやすい JSON、配布では速く読めるバイナリを使い分けます。読み込みでゲームを止めない工夫もしています。</p>
+            <p class="detail-hero__text">アセットを GUID で参照し、開発中は JSON、配布はバイナリを同じ処理で読み書きします。寿命は「どこで読み込んだか」で決め、シーンの切り替えでまとめて片付けます。</p>
         </section>
 
         <!-- ========================================
@@ -73,7 +74,16 @@
             </div>
 
             <div class="prose">
-                <p>モデル、マテリアル、プレハブ、シーンなどのアセットを、ファイルのパスではなく GUID(固有の番号)で参照します。ファイルを移動したり名前を変えたりしても、参照が切れません。</p>
+                <p>モデル、マテリアル、プレハブ、シーンなどのアセットを、ファイルのパスではなく GUID で参照します。元ファイルの隣に GUID と種類を書いた <code>.assetmeta</code> を置くので、ファイルを移動したり名前を変えたりしても参照が切れません。</p>
+            </div>
+            <h3 class="content-heading">開発から配布までの流れ</h3>
+            <ol class="flow">
+                <li><span>編集用の JSON<small>.oj* / 人が読めて差分が取れる</small></span></li>
+                <li><span>Archive<small>1つの関数で読み書き</small></span></li>
+                <li><span>配布用のバイナリ<small>.ob* / 速く読める</small></span></li>
+            </ol>
+            <div class="prose">
+                <p>書く処理と読む処理を1つの <code>Archive</code> 関数にまとめ、モードで切り替えています。形式ごとに処理を書き分けずに済みます。</p>
             </div>
         </section>
 
@@ -105,21 +115,20 @@
 
                 <div>
                     <h2>仕組み</h2>
-                    <p>2つの形式</p>
+                    <p>参照と寿命</p>
                 </div>
             </div>
 
-            <h3 class="content-heading">開発から配布までの流れ</h3>
-            <ol class="flow">
-                <li><span>編集用の JSON<small>.oj* / エディターで編集</small></span></li>
-                <li><span>Archive<small>同じ処理で読み書き</small></span></li>
-                <li><span>配布用のバイナリ<small>.ob* / ゲームが読む</small></span></li>
-            </ol>
-            <h3 class="content-heading">ポイント</h3>
+            <h3 class="content-heading">ハンドルで指す</h3>
             <ul class="content-list">
-                <li>開発中は人が読める JSON を編集し、配布では読み込みの速いバイナリを使います。</li>
-                <li>同じ <code>Archive</code> の処理で、どちらの形式も読み書きします。形式ごとに保存の処理を書き分けずに済みます。</li>
-                <li>モデルは glTF を tinygltf で読み込み、テクスチャは DirectXTex で扱います。</li>
+                <li>リソースは添え字と世代のハンドルで指します。ECS のエンティティと同じ考え方で、消えたリソースを古いハンドルで触る事故を防ぎます。</li>
+                <li>メッシュ・マテリアル・アニメーションはモデルファイル1つに入っていて、外からは「モデルの GUID + 中の番号」で指します。</li>
+            </ul>
+            <h3 class="content-heading">寿命は「読み込みの場」で決める</h3>
+            <ul class="content-list">
+                <li>シーン・ロード画面・プレビュー・エンジンのどこで読んだかを記録します。</li>
+                <li>シーンが消えたら、生きている場から依存をたどり、<strong>届かないものを捨てます</strong>(マーク&スイープ型の GC に近い形です)。</li>
+                <li>以前は参照カウントでしたが、ECS のコンポーネントは memcpy で動くのでコピーで数を増やせず、解放の処理を 26 か所に手で書いていました。場で決める形にして全部なくしました。</li>
             </ul>
         </section>
 
@@ -136,35 +145,64 @@
                 </div>
             </div>
 
-            <h3 class="content-heading">参照の仕組み</h3>
+            <h3 class="content-heading">ファイルの変更を反映する</h3>
             <ul class="content-list">
-                <li><code>ResourceRef&lt;T&gt;</code> がアセットの中に値として埋まり、GUID からリソースを引きます。</li>
-                <li><code>ResourceManager</code> はこの参照の入口なので、理由のあるシングルトンとして残しました(<a href="OverallDesign.html#coding">全体の設計</a>)。</li>
-            </ul>
-            <h3 class="content-heading">配布用パッケージの書き出し</h3>
-            <ul class="content-list">
-                <li>アセットを GUID とパスの依存からたどって必要なものだけを集め、JSON をバイナリへ変換します。</li>
-                <li>エディターのビルドパネルから書き出せます。</li>
+                <li>監視スレッドは「変わった」という通知をキューに積むだけにし、メインスレッドが読み解いて反映します。</li>
+                <li>読み取り用の写しは <code>atomic&lt;shared_ptr&gt;</code> で差し替えるので、読む側はロックが要りません。</li>
             </ul>
             <h3 class="content-heading">読み込みでゲームを止めない</h3>
             <ul class="content-list">
-                <li>GPU への転送はコピーキューとコンピュートキューへまとめて流し、完了をフェンスで見張ります。</li>
-                <li>モデル1体で数百回の送信(submit)になるのを防ぐ、まとめ送りの仕組みを持っています。</li>
-                <li>シーンはロード画面の裏で先読みと組み立てを行い、落ち着くのを待ってから切り替えます。</li>
-                <li>敵の初出現で 26〜30 ms 止まっていた原因は、エフェクト用の GPU プールをその場で作っていたことでした。先読みで届いた時点で、ロード中に作るようにしました。</li>
+                <li>シーンはロード画面の裏で「先読み → 組み立て → 落ち着くのを待つ」をしてから切り替えます。</li>
+                <li>GPU への転送は Copy / Compute キューへ流し、完了をフェンスで見張ります。モデル1体で数百回の送信になるのを防ぐため、まとめて1回で流す仕組みを作りました。</li>
+                <li>敵の初出現で 26〜30 ms 止まっていた原因は、死亡演出のパーティクルの GPU プールをその場で作っていたことでした。ロード中に先に作るようにしました。</li>
+            </ul>
+            <h3 class="content-heading">取り込みと書き出し</h3>
+            <ul class="content-list">
+                <li>glTF を tinygltf で読み込み、テクスチャは DirectXTex で変換します。</li>
+                <li>シーンから GUID とパスをたどって必要なアセットだけを集め、JSON をバイナリへ変換して配布用のフォルダを作ります。</li>
             </ul>
         </section>
 
         <!-- ========================================
-             成果と計測
+             不具合と直し方
         ======================================== -->
-        <section class="section detail-section" id="result">
+        <section class="section detail-section" id="bugs">
             <div class="section-heading">
                 <p class="section-heading__number">05</p>
 
                 <div>
-                    <h2>成果と計測</h2>
-                    <p>数字で見る</p>
+                    <h2>不具合と直し方</h2>
+                    <p>読み込みのデッドロック</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>段階</th><th>内容</th></tr></thead>
+                    <tbody>
+                        <tr><td>症状</td><td>ガレージへ入ると、まれにロード画面が出ずに固まる。Debug では出ず、Release でだけ出た</td></tr>
+                        <tr><td>調べ方</td><td>メインのフレームが 5 秒進まないと、全スレッドの呼び出し履歴・フェンス・読み込み中の数を書き出す <code>HangWatchdog</code> を作った</td></tr>
+                        <tr><td>原因</td><td>まだ走っていない読み込みジョブの完了を、同じリソースを同期で読む側が寝て待っていた。ワーカー全員がテクスチャ待ちでふさがり、誰も組み立てていなかった</td></tr>
+                        <tr><td>直し方</td><td>組み立て担当を先着1本だけが取るようにし、取れなかった側は実際に組み立てている間だけ待つ</td></tr>
+                        <tr><td>確かめ方</td><td>ガレージと砂漠のステージを 35 回切り替えて、固まらないことを確認</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="prose">
+                <p>「まだ走っていないジョブを寝て待たない」ことを教訓にしています。</p>
+            </div>
+        </section>
+
+        <!-- ========================================
+             成果
+        ======================================== -->
+        <section class="section detail-section" id="result">
+            <div class="section-heading">
+                <p class="section-heading__number">06</p>
+
+                <div>
+                    <h2>成果</h2>
+                    <p>まとめ</p>
                 </div>
             </div>
 
@@ -172,13 +210,13 @@
                 <table class="data-table">
                     <thead><tr><th>項目</th><th>内容</th></tr></thead>
                     <tbody>
-                        <tr><td>参照の方式</td><td>GUID</td></tr>
+                        <tr><td>参照の方式</td><td>GUID(.assetmeta)とハンドル(添え字 + 世代)</td></tr>
                         <tr><td>形式</td><td>開発中 : JSON(.oj*) / 配布 : バイナリ(.ob*)</td></tr>
-                        <tr><td>配布パッケージの大きさ</td><td>約 1.6 GB</td></tr>
+                        <tr><td>寿命の管理</td><td>読み込みの場から届くものを残す方式。手書きの解放 26 か所を削除</td></tr>
                     </tbody>
                 </table>
             </div>
-            <!-- 未記入: 読み込み時間や、敵の初出現の停止の改善後の値を追加する場合は上の表に行を足す -->
+            <!-- 未記入: 読み込み時間などの数字を追加する場合は上の表に行を足す -->
         </section>
 
         <!-- ========================================
@@ -186,7 +224,7 @@
         ======================================== -->
         <section class="section detail-section" id="code">
             <div class="section-heading">
-                <p class="section-heading__number">06</p>
+                <p class="section-heading__number">07</p>
 
                 <div>
                     <h2>主なコード</h2>
@@ -208,7 +246,7 @@
         ======================================== -->
         <section class="section detail-section" id="others">
             <div class="section-heading">
-                <p class="section-heading__number">07</p>
+                <p class="section-heading__number">08</p>
 
                 <div>
                     <h2>ほかの技術を見る</h2>
@@ -268,8 +306,9 @@
         <a href="#movie"><span>02</span> 動作動画</a>
         <a href="#structure"><span>03</span> 仕組み</a>
         <a href="#implementation"><span>04</span> 実装</a>
-        <a href="#result"><span>05</span> 成果と計測</a>
-        <a href="#code"><span>06</span> 主なコード</a>
+        <a href="#bugs"><span>05</span> 不具合と直し方</a>
+        <a href="#result"><span>06</span> 成果</a>
+        <a href="#code"><span>07</span> 主なコード</a>
 
     </nav>
 

@@ -57,7 +57,7 @@
             <a class="detail-back" href="../EngineHome.html#pickup"><span>←</span> 自作エンジン紹介へ戻る</a>
             <p class="detail-hero__label">自作エンジン / 技術詳細</p>
             <h1>ECS</h1>
-            <p class="detail-hero__text">データの並べ方から、システムの実行順の決定まで自作したアーキタイプ型の ECS です。</p>
+            <p class="detail-hero__text">同じコンポーネントの組み合わせを持つエンティティを 64 KB のチャンクに並べ、システムは読み書きの宣言を書くだけで、実行順と並列化をエンジンが自動で決めるアーキタイプ型の ECS です。</p>
         </section>
 
         <!-- ========================================
@@ -74,11 +74,26 @@
             </div>
 
             <div class="prose">
-                <p>ECS は、ゲーム内のオブジェクトを「データ(コンポーネント)」と「処理(システム)」に分けて扱う仕組みです。このエンジンではコンポーネント 110 種、システム 131 種が動き、ボスを作る最大 4,000 体のボイドもエンティティとして扱います。</p>
+                <p>ECS は、データ(コンポーネント)と処理(システム)を分け、エンティティをただの ID として扱う設計です。コンポーネント 110 種、システム 131 種が動き、最終ボス「ボイドワーム」は最大 4,000 体のエンティティの群れでできています。</p>
             </div>
-            <div class="prose">
-                <p>魚群のデモでは 70,000 体を 60FPS で動かしています。1体ごとの処理は、座標の更新とボイドの計算だけです。</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>言葉</th><th>意味</th><th>このエンジンでは</th></tr></thead>
+                    <tbody>
+                        <tr><td>Entity</td><td>ただの ID</td><td>64bit。下位 32bit が添え字、上位 32bit が世代</td></tr>
+                        <tr><td>Component</td><td>データだけの構造体</td><td>memcpy で動かせる型に限定</td></tr>
+                        <tr><td>System</td><td>条件に合うエンティティを回す処理</td><td>状態を持たない、無捕獲のラムダ</td></tr>
+                        <tr><td>Archetype</td><td>コンポーネントの同じ組み合わせ</td><td>シグネチャ(ビット列)で表す</td></tr>
+                        <tr><td>Chunk</td><td>アーキタイプごとの固定長メモリ</td><td>64 KB、SoA</td></tr>
+                    </tbody>
+                </table>
             </div>
+            <h3 class="content-heading">ECS にした理由</h3>
+            <ul class="content-list">
+                <li><strong>キャッシュ効率</strong> : 同じ型のデータが連続して並ぶので、ループで回すときにキャッシュに乗ります。</li>
+                <li><strong>並列化しやすい</strong> : システムが何を読んで何を書くかを宣言しているので、ぶつからないものを自動で並列に流せます。</li>
+                <li><strong>組み合わせで作れる</strong> : 武器を手・肩・発射方式・反動などのコンポーネントに分け、プレハブで組み合わせて種類を増やしました。</li>
+            </ul>
         </section>
 
         <!-- ========================================
@@ -109,21 +124,29 @@
 
                 <div>
                     <h2>仕組み</h2>
-                    <p>データの並べ方</p>
+                    <p>データの置き方</p>
                 </div>
             </div>
 
             <div class="detail-split">
                 <figure class="content-figure">
                     <div class="detail-media"><img src="../../../Images/Engine/ECS.svg" alt="アーキタイプとチャンクの構成図" loading="lazy"></div>
-                    <figcaption>コンポーネントの組み合わせごとにアーキタイプを作り、64 KB のチャンクへ配列で並べます。</figcaption>
+                    <figcaption>先頭にエンティティの配列、その後ろにコンポーネントごとの配列を並べます(SoA)。</figcaption>
                 </figure>
                 <ul class="content-list">
-                    <li>コンポーネントの組み合わせごとに<strong>アーキタイプ</strong>を作ります。</li>
-                    <li>エンティティは固定長 64 KB の<strong>チャンク</strong>へ詰めます。中身は SoA(種類ごとの配列)で、配列の位置はアーキタイプが持ちます。</li>
-                    <li>チャンクは専用のアロケーターから借ります。</li>
+                    <li>1チャンクに何体入るかは<strong>アーキタイプごとに1回だけ</strong>計算します。各配列の先頭をアライメントに揃え、64 KB に収まる数にします。</li>
+                    <li>型の番号からチャンク内の配列の位置を<strong>平らな配列</strong>で引くので、ハッシュマップを引かずに届きます。</li>
+                    <li>削除は末尾のエンティティを穴に詰める <strong>swap and pop</strong> で O(1) です。</li>
+                    <li>チャンクはフリーリストで貸し出し、空になったチャンクを1つだけ取っておいて確保と解放の繰り返しを防ぎます。</li>
+                    <li>消した番号を使い回すたびに<strong>世代</strong>を進め、古い ID で別のエンティティを触る事故を防ぎます。</li>
                 </ul>
             </div>
+            <h3 class="content-heading">構造の変更は予約にする</h3>
+            <ul class="content-list">
+                <li>システムがチャンクを回している途中で生成・削除・付け外しをすると、配列が動いてポインタが壊れます。</li>
+                <li>変更は <code>CommandBuffer</code> に積み、次のフレームの最初にまとめて反映します。</li>
+                <li>付け外しによる引っ越しは、共通のコンポーネントをチャンクからチャンクへ直接コピーします。以前は一度マップへ退避していて、弾1発の一生で約 96 回のヒープ確保が起きていました。</li>
+            </ul>
         </section>
 
         <!-- ========================================
@@ -135,27 +158,44 @@
 
                 <div>
                     <h2>実装</h2>
-                    <p>工夫したところ</p>
+                    <p>実行順と並列化の自動決定</p>
                 </div>
             </div>
 
-            <h3 class="content-heading">クエリを速くする</h3>
+            <div class="prose">
+                <p>システムは読む型(<code>const</code>)と書く型(<code>const</code> なし)を引数に並べるだけです。テンプレートで自動的に読み書きの宣言になります。</p>
+            </div>
+            <pre class="code-block"><code>a_world.ActiveTask&lt;const ModelComponent, const AnimatorComponent, const AnimatorInputComponent&gt;(
+    ESystemPhase::Animation,
+    "AnimatorSystem",
+    [](Chunk*, uint32_t a_count, const SystemContext&amp; a_ctx,
+       const ModelComponent* a_models, const AnimatorComponent* a_anims, const AnimatorInputComponent* a_inputs)
+    {
+        for (uint32_t i = 0; i &lt; a_count; ++i) { /* 1体ぶんの処理 */ }
+    })
+    .After("AnimatorSystem_Rebuild")   // 明示の順序
+    .OnWorker();                       // ワーカースレッドで走らせる</code></pre>
+            <h3 class="content-heading">実行順の決め方</h3>
+            <ol class="content-list">
+                <li><strong>明示の順序</strong> : <code>After</code> / <code>Before</code> の指定を辺にします。</li>
+                <li><strong>書いてから読む(RAW)</strong> : A が読む型を B が書くなら、B → A の辺を張ります。</li>
+                <li><strong>トポロジカルソート</strong>(Kahn 法)で並べます。並べきれなければ循環として、何が循環しているかをログに出します。</li>
+                <li><strong>診断</strong> : ぶつかっているのに前後が決まっていない組をプロファイラーに出し、<code>After</code> / <code>Before</code> で向きを決めます。</li>
+            </ol>
+            <div class="prose">
+                <p>書き同士や「読んでから書く」は、どちらが先が正しいかが処理の意味によるので自動では決めません。同時に走らせないことだけを保証し、順序は明示させます。</p>
+            </div>
+            <h3 class="content-heading">並列に動かす</h3>
             <ul class="content-list">
-                <li>条件に合うアーキタイプをキャッシュし、新しく増えたアーキタイプだけを照合します。</li>
+                <li>クエリが一致したアーキタイプをキャッシュし、新しく増えたアーキタイプだけを照合します。</li>
+                <li>ワーカーで走るシステムは、チャンクを「チャンク数とワーカー数の小さい方」のバッチに分け、ジョブとして積みます(<a href="JobSystem.html">ジョブシステム</a>)。</li>
+                <li>型がぶつかっていても、<strong>対象のアーキタイプが1つも重ならなければ</strong>同じエンティティは触らないので、待ち合わせを省きます。</li>
+                <li>メインスレッドは待たずに次のシステムの積み込みへ進みます。</li>
             </ul>
-            <h3 class="content-heading">実行順を自動で決める</h3>
+            <h3 class="content-heading">苦労したところ</h3>
             <ul class="content-list">
-                <li>システムが宣言した読み書きから依存を作り、トポロジカルソートで実行順を決めます。</li>
-                <li><code>After</code> / <code>Before</code> で向きを明示でき、読み書きが往復する場合も扱えます。</li>
-            </ul>
-            <h3 class="content-heading">並列に動かせるかを判定する</h3>
-            <ul class="content-list">
-                <li>同じ型を読み書きしていても、対象のアーキタイプが重ならなければ待ち合わせを省きます。</li>
-                <li>決まった順番は、そのままジョブシステムの依存へつなぎます(<a href="JobSystem.html">ジョブシステム</a>)。</li>
-            </ul>
-            <h3 class="content-heading">見える形にする</h3>
-            <ul class="content-list">
-                <li>ソートの成否、循環、前後が決まっていない組をプロファイラーで確認できます。</li>
+                <li>最初は読み書きのぶつかり全部を辺にしていて、読み書きが往復する組で循環して止まりました。</li>
+                <li>書いてから読む組だけを辺にし、残りは明示の順序で決め、決まっていない組を診断で見えるようにして解決しました。全フェーズで循環は 0 です。</li>
             </ul>
         </section>
 
@@ -179,12 +219,18 @@
                         <tr><td>コンポーネント</td><td>110 種</td></tr>
                         <tr><td>システム</td><td>131 種</td></tr>
                         <tr><td>システムの依存の循環</td><td>全フェーズで 0</td></tr>
-                        <tr><td>チャンクの大きさ</td><td>64 KB</td></tr>
-                        <tr><td>魚群のデモ</td><td>70,000 体で 60FPS</td></tr>
+                        <tr><td>チャンクの大きさ</td><td>64 KB(SoA)</td></tr>
+                        <tr><td>ボスの個体数</td><td>最大 4,000 体</td></tr>
                     </tbody>
                 </table>
             </div>
-            <!-- 未記入: 更新時間の実測を追加する場合は上の表に行を足す -->
+            <!-- 未記入: ボイドのシーンで取った ECS の処理時間(操舵の ms、並列での短縮)を追加する場合は上の表に行を足す -->
+            <h3 class="content-heading">今後の改善点</h3>
+            <ul class="content-list">
+                <li>ワーカーから構造変更の予約を積めません。スレッドごとのコマンドバッファを持てば対応できます。</li>
+                <li>このフレームで書かれたチャンクだけを回す、変更検出がありません。</li>
+                <li>宣言にない読み書きを自動で見つける仕組みがありません。Debug ビルドでアクセスを記録して突き合わせたいと考えています。</li>
+            </ul>
         </section>
 
         <!-- ========================================
@@ -202,9 +248,10 @@
 
             <ul class="code-list">
                 <li><code>Engine/ECS/</code></li>
-                <li><code>Engine/ECS/System/SystemManager.cpp</code></li>
-                <li><code>Engine/ECS/System/TaskAccess.h</code></li>
+                <li><code>Engine/ECS/Schedule/SystemSchedule.cpp</code></li>
+                <li><code>Engine/ECS/World/SystemRunner.cpp</code></li>
                 <li><code>Engine/ECS/Query/QueryCache.h</code></li>
+                <li><code>Application/Systems/Boid/</code></li>
             </ul>
         </section>
 
