@@ -301,3 +301,10 @@
 .detail-section .prose + .code-block {
     margin-top: 16px;
 }
+
+/* 動画の下の説明 */
+.video-caption {
+    margin: 12px 0 0;
+    color: var(--color-muted);
+    font-size: 0.82rem;
+}

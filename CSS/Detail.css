@@ -156,3 +156,12 @@
     height: 100%;
     border: 0;
 }
+
+/* 縦横比を固定しない画像(エディターの画面の切り抜きなど) */
+.detail-media--free {
+    aspect-ratio: auto;
+}
+
+.detail-media--free img {
+    height: auto;
+}

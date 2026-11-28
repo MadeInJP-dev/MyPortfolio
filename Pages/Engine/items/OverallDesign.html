@@ -38,7 +38,7 @@
 
         <nav class="header-nav" aria-label="このページの項目">
             <a href="#overview">概要</a>
-            <a href="#movie">動作動画</a>
+            <a href="#editor">自作エディター</a>
             <a href="#structure">層と依存</a>
             <a href="#frame">1フレームの流れ</a>
             <a href="#editor">自作エディター</a>
@@ -92,22 +92,22 @@
         </section>
 
         <!-- ========================================
-             動作動画
+             自作エディター
         ======================================== -->
-        <section class="section detail-section" id="movie">
+        <section class="section detail-section" id="editor">
             <div class="section-heading">
                 <p class="section-heading__number">02</p>
 
                 <div>
-                    <h2>動作動画</h2>
-                    <p>エディターで作っている様子</p>
+                    <h2>自作エディター</h2>
+                    <p>エディターの画面</p>
                 </div>
             </div>
 
-            <!-- data-youtube に YouTube の動画 ID か URL を入れると埋め込まれます -->
-            <div class="video-embed" data-youtube="" data-title="自作エディターの動作動画">
-                <p class="video-embed__placeholder">動画は準備中です</p>
-            </div>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../../Images/Engine/Screenshots/Editor.jpg" alt="ImGui の自作エディター。上にレンダーグラフ、下にアセットの一覧とログのウィンドウが並んでいる" loading="lazy"></div>
+                <figcaption>ImGui で作った統合エディター。ウィンドウはドッキングでき、レンダーグラフ・アセット・ログ・プロファイラーなどを並べて使います。</figcaption>
+            </figure>
         </section>
 
         <!-- ========================================
@@ -406,7 +406,7 @@
         aria-hidden="true">
 
         <a href="#overview"><span>01</span> 概要</a>
-        <a href="#movie"><span>02</span> 動作動画</a>
+        <a href="#editor"><span>02</span> 自作エディター</a>
         <a href="#structure"><span>03</span> 層と依存</a>
         <a href="#frame"><span>04</span> 1フレームの流れ</a>
         <a href="#editor"><span>05</span> 自作エディター</a>

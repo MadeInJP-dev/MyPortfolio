@@ -38,7 +38,7 @@
 
         <nav class="header-nav" aria-label="このページの項目">
             <a href="#overview">概要</a>
-            <a href="#movie">動作動画</a>
+            <a href="#screens">実際の画面</a>
             <a href="#structure">基盤</a>
             <a href="#rendergraph">レンダーグラフ</a>
             <a href="#gpu">GPU の機能</a>
@@ -90,21 +90,32 @@
         </section>
 
         <!-- ========================================
-             動作動画
+             実際の画面
         ======================================== -->
-        <section class="section detail-section" id="movie">
+        <section class="section detail-section" id="screens">
             <div class="section-heading">
                 <p class="section-heading__number">02</p>
 
                 <div>
-                    <h2>動作動画</h2>
-                    <p>実際に動いている様子</p>
+                    <h2>実際の画面</h2>
+                    <p>エンジンで描画した画面</p>
                 </div>
             </div>
 
-            <!-- data-youtube に YouTube の動画 ID か URL を入れると埋め込まれます -->
-            <div class="video-embed" data-youtube="" data-title="DirectX 12 の描画の動作動画">
-                <p class="video-embed__placeholder">動画は準備中です</p>
+            <figure class="content-figure">
+                <div class="detail-media"><img src="../../../Images/Engine/Screenshots/Hangar.jpg" alt="VECTOR REIGN の格納庫の画面。メカとアームを照明とフォグが照らしている" loading="lazy"></div>
+                <figcaption>VECTOR REIGN の格納庫(ホーム)。レイトレーシングの GI・反射と、ボリュメトリックフォグを使っています。</figcaption>
+            </figure>
+
+            <div class="detail-gallery">
+                <figure class="content-figure">
+                    <div class="detail-media"><img src="../../../Images/Engine/Screenshots/RT_Spheres.jpg" alt="粗さの違う金と白の球が並び、床に赤・緑・青の板が映り込んでいるテストシーン" loading="lazy"></div>
+                    <figcaption>反射のテストシーン。粗さの違う球を並べ、映り込みとぼけ方を確かめています。</figcaption>
+                </figure>
+                <figure class="content-figure">
+                    <div class="detail-media"><img src="../../../Images/Engine/Screenshots/RT_Room.jpg" alt="赤と緑の壁に囲まれた部屋に、箱と鏡面の球が置かれたテストシーン" loading="lazy"></div>
+                    <figcaption>GI のテストシーン。赤と緑の壁の色が、周りの面や球の映り込みに乗ります。</figcaption>
+                </figure>
             </div>
         </section>
 
@@ -176,6 +187,11 @@
                     <li>コンパイルは GPU に触らずに最後まで通り、構成が変わったときだけ行います。</li>
                 </ul>
             </div>
+            <figure class="content-figure">
+                <div class="detail-media detail-media--free"><img src="../../../Images/Engine/Screenshots/RenderGraph_Aliasing.png" alt="エディターのレンダーグラフ画面。横軸がパスの番号、縦が 16 個のメモリの席で、中間テクスチャの生存区間が帯で並んでいる" loading="lazy"></div>
+                <figcaption>格納庫のパイプライン(55 パス)で、中間テクスチャが 16 個の席を使い回している様子をエディターで表示したものです。横軸がパスの順番、帯が各テクスチャの生きている区間です。1本ずつ確保すると 505.81 MB のところ、226.94 MB(55.1% 削減)で収まっています。</figcaption>
+            </figure>
+
             <div class="prose">
                 <p>パスを C++ に直接書くと、1つ足すたびにバリアの位置や中間テクスチャの確保を手で直すことになり、すぐ壊れます。中間テクスチャを全部別々に確保すると VRAM も足りません。これを解決するために作りました。</p>
             </div>
@@ -262,6 +278,7 @@
                     <thead><tr><th>項目</th><th>値</th></tr></thead>
                     <tbody>
                         <tr><td>テストシーンの GPU メモリ</td><td>3,858 MiB → 1,697 MiB</td></tr>
+                        <tr><td>格納庫の中間テクスチャのメモリ(エイリアシング)</td><td>505.81 MB → 226.94 MB(55.1% 削減)</td></tr>
                         <tr><td>描画パスの種類</td><td>43 種(テスト用を含む)</td></tr>
                         <tr><td>CPU と GPU のずらし</td><td>3フレーム(バックバッファ 3 枚)</td></tr>
                     </tbody>
@@ -403,7 +420,7 @@
         aria-hidden="true">
 
         <a href="#overview"><span>01</span> 概要</a>
-        <a href="#movie"><span>02</span> 動作動画</a>
+        <a href="#screens"><span>02</span> 実際の画面</a>
         <a href="#structure"><span>03</span> 基盤</a>
         <a href="#rendergraph"><span>04</span> レンダーグラフ</a>
         <a href="#gpu"><span>05</span> GPU の機能</a>
